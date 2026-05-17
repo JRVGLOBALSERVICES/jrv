@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useMemo } from "react";
+import { useRef, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Float, Environment, ContactShadows, useGLTF, Center } from "@react-three/drei";
 import * as THREE from "three";
@@ -9,24 +9,19 @@ import * as THREE from "three";
 function X50Model() {
   const { scene } = useGLTF("/models/proton-x50.glb");
 
-  // Modify materials synchronously during render phase
-  useMemo(() => {
-    if (!scene) return;
-    scene.traverse((child) => {
-      if (!(child instanceof THREE.Mesh)) return;
-      child.castShadow = true;
-      child.receiveShadow = true;
+  // Modify materials immediately (runs during render phase)
+  scene.traverse((child) => {
+    if (!(child instanceof THREE.Mesh)) return;
+    child.castShadow = true;
+    child.receiveShadow = true;
 
-      const mat = child.material as THREE.MeshStandardMaterial;
-      if (!mat || !mat.color) return;
-
-      if (mat.name === "00 - BODY") {
-        mat.color.set("#FF4500");
-        mat.metalness = 0.6;
-        mat.roughness = 0.3;
-      }
-    });
-  }, [scene]);
+    const mat = child.material as THREE.MeshStandardMaterial;
+    if (mat && mat.name === "00 - BODY") {
+      mat.color.set("#FF4500");
+      mat.metalness = 0.6;
+      mat.roughness = 0.3;
+    }
+  });
 
   return (
     <Center>
@@ -40,16 +35,11 @@ function CameraManager() {
   const { camera, size } = useThree();
 
   useEffect(() => {
-    const isMobile = size.width < 600;
     const cam = camera as THREE.PerspectiveCamera;
+    const isMobile = size.width < 600;
 
-    if (isMobile) {
-      cam.position.set(4, 1.8, 7);
-      cam.fov = 45;
-    } else {
-      cam.position.set(4.5, 2.5, 6);
-      cam.fov = 40;
-    }
+    cam.position.set(isMobile ? 5 : 4.5, isMobile ? 2 : 2.5, isMobile ? 8 : 6);
+    cam.fov = isMobile ? 50 : 40;
     cam.updateProjectionMatrix();
   }, [camera, size.width]);
 
@@ -79,12 +69,11 @@ function Scene({ scrollProgress }: { scrollProgress: number }) {
 
   useFrame((_, delta) => {
     if (!mesh.current) return;
-
     const scrollRotY = scrollProgress * Math.PI * 2;
     const mouseTiltX = mouse.current.y * 0.15;
     const mouseTiltY = mouse.current.x * 0.2;
-
     const speed = 1 - Math.pow(0.02, delta);
+
     target.current.rotY += (scrollRotY - target.current.rotY) * speed;
     target.current.tiltX += (mouseTiltX - target.current.tiltX) * speed;
     target.current.tiltY += (mouseTiltY - target.current.tiltY) * speed;
@@ -120,7 +109,7 @@ useGLTF.preload("/models/proton-x50.glb");
 export default function Car3D({ progress = 0 }: { progress?: number }) {
   return (
     <div className="w-full h-full">
-      <Canvas dpr={[1, 1.5]} gl={{ antialias: true, alpha: false }}>
+      <Canvas dpr={[1, 1.5]} gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}>
         <Scene scrollProgress={progress} />
       </Canvas>
     </div>

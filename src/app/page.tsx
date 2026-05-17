@@ -5,6 +5,7 @@ import { motion, useInView } from "framer-motion";
 import dynamic from "next/dynamic";
 
 const Car3D = dynamic(() => import("@/components/3d/Car3D"), { ssr: false });
+const FleetShowroom = dynamic(() => import("@/components/fleet/FleetShowroom"), { ssr: false });
 
 const FRAMES = 61;
 const fSrc = (i: number) => `/frames/frame_${String(i + 1).padStart(4, "0")}.jpg`;
@@ -270,6 +271,8 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      <FleetShowroom />
 
       {/* ─── 8 REASONS ─── */}
       <section className="relative z-10 py-20 bg-black/50 backdrop-blur-sm">

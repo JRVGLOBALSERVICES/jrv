@@ -6,7 +6,7 @@ import { Float, Environment, ContactShadows, useGLTF, Center } from "@react-thre
 import * as THREE from "three";
 
 // ─── MODEL LOADER ────────────────────────────────────
-function X50Model({ onLoad }: { onLoad?: () => void }) {
+function X50Model() {
   const group = useRef<THREE.Group>(null);
   const { scene } = useGLTF("/models/proton-x50.glb");
 
@@ -28,9 +28,7 @@ function X50Model({ onLoad }: { onLoad?: () => void }) {
         mat.roughness = 0.3;
       }
     });
-
-    onLoad?.();
-  }, [scene, onLoad]);
+  }, [scene]);
 
   return (
     <group ref={group}>
@@ -41,14 +39,43 @@ function X50Model({ onLoad }: { onLoad?: () => void }) {
   );
 }
 
-// ─── SCROLL-REACTIVE SCENE ──────────────────────────
+// ─── SCROLL + MOUSE REACTIVE SCENE ──────────────────
 function Scene({ scrollProgress }: { scrollProgress: number }) {
   const mesh = useRef<THREE.Group>(null);
+  const mouse = useRef({ x: 0, y: 0 });
+  const target = useRef({ rotY: 0, rotX: 0, tiltX: 0, tiltY: 0 });
 
-  useFrame(() => {
+  // Track mouse position on the document
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      mouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    };
+    window.addEventListener("mousemove", onMove);
+    return () => window.removeEventListener("mousemove", onMove);
+  }, []);
+
+  useFrame((_, delta) => {
     if (!mesh.current) return;
-    mesh.current.rotation.y = scrollProgress * Math.PI * 2;
-    mesh.current.rotation.x = Math.sin(scrollProgress * Math.PI) * 0.08;
+
+    // Base rotation from scroll
+    const scrollRotY = scrollProgress * Math.PI * 2;
+    // Mouse tilt offsets (subtle)
+    const mouseTiltX = mouse.current.y * 0.15;
+    const mouseTiltY = mouse.current.x * 0.2;
+
+    // Smooth interpolation toward targets
+    const speed = 1 - Math.pow(0.02, delta);
+    target.current.rotY += (scrollRotY - target.current.rotY) * speed;
+    target.current.tiltX += (mouseTiltX - target.current.tiltX) * speed;
+    target.current.tiltY += (mouseTiltY - target.current.tiltY) * speed;
+
+    // Apply: scroll rotation + mouse tilt
+    mesh.current.rotation.x = target.current.tiltX;
+    mesh.current.rotation.y = target.current.rotY + target.current.tiltY;
+
+    // Slight body roll for dynamism
+    mesh.current.rotation.z = Math.sin(scrollProgress * Math.PI) * 0.04;
   });
 
   return (
@@ -59,7 +86,7 @@ function Scene({ scrollProgress }: { scrollProgress: number }) {
       <pointLight position={[0, 3, 2]} intensity={0.4} color="#FF4500" />
 
       <group ref={mesh}>
-        <Float speed={1.2} rotationIntensity={0.08} floatIntensity={0.2}>
+        <Float speed={1.2} rotationIntensity={0.08} floatIntensity={0.25}>
           <X50Model />
         </Float>
       </group>

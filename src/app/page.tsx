@@ -109,9 +109,11 @@ function Showcase3D() {
       if (!el) return;
       const rect = el.getBoundingClientRect();
       const h = rect.height;
-      const visible = Math.max(0, Math.min(h, window.innerHeight - rect.top));
-      const pct = visible / h;
-      setProgress(Math.max(0, Math.min(1, pct)));
+      // Progress from section entering viewport (0)
+      // to section fully exited (1)
+      const totalDist = h + window.innerHeight;
+      const pct = Math.max(0, Math.min(1, (window.innerHeight - rect.top) / totalDist));
+      setProgress(pct);
     };
     l.on("scroll", update);
     update();

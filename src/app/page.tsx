@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useCallback, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 
 const FRAMES = 61;
 const fSrc = (i: number) => `/frames/frame_${String(i + 1).padStart(4, "0")}.jpg`;
@@ -66,16 +66,35 @@ function Scrubber({ onProg }: { onProg: (n: number) => void }) {
   );
 }
 
-// ─── FADE IN UTILITY ────────────────────────────────
-function useFade(start: number, p: number) {
-  const v = Math.min(1, Math.max(0, (p - start) * 8));
-  return {
-    opacity: v,
-    transform: `translateY(${(1 - v) * 30}px)`,
-  };
+// ─── STAGGER VARIANTS ───────────────────────────────
+const container = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
+const item = { hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.5, ease } } };
+
+function Reveal({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+  return <motion.div ref={ref} initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, ease }} className={className}>{children}</motion.div>;
 }
 
-// ─── PAGE ────────────────────────────────────────────
+function useFade(start: number, p: number) {
+  const v = Math.min(1, Math.max(0, (p - start) * 8));
+  return { opacity: v, transform: `translateY(${(1 - v) * 30}px)` };
+}
+
+// ─── CARS ─────────────────────────────────────────────
+const CARS = [
+  { n: "Perodua Axia G1", p: "RM 110", s: "Hatchback", img: "/images/perodua-axia.png" },
+  { n: "Perodua Axia G2", p: "RM 120", s: "Hatchback", img: "/images/car-hatchback.png" },
+  { n: "Proton Exora", p: "RM 170", s: "MPV · 7 seats", img: "/images/proton-exora.png" },
+  { n: "Proton X50", p: "RM 250", s: "SUV", img: "/images/proton-x50.png" },
+  { n: "Toyota Vios", p: "RM 170", s: "Sedan", img: "/images/toyota-vios.png" },
+  { n: "Toyota Yaris", p: "RM 161", s: "Hatchback", img: "/images/car-hatchback.png" },
+  { n: "Honda City RS", p: "RM 170", s: "Hybrid", img: "/images/honda-city.png" },
+  { n: "Mitsubishi Xpander", p: "RM 350", s: "MPV", img: "/images/car-suv.png" },
+  { n: "Toyota Alphard", p: "RM 700", s: "Luxury", img: "/images/car-luxury.png" },
+];
+
+// ─── PAGE ─────────────────────────────────────────────
 export default function Home() {
   const [sy, setSy] = useState(0);
   const [vp, setVp] = useState(0);
@@ -87,13 +106,8 @@ export default function Home() {
   return (
     <main>
       {/* NAV */}
-      <motion.nav
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, ease }}
-        className="fixed top-0 left-0 right-0 z-50"
-        style={{ opacity: Math.max(0, 1 - p * 3) }}
-      >
+      <motion.nav initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, ease }}
+        className="fixed top-0 left-0 right-0 z-50" style={{ opacity: Math.max(0, 1 - p * 3) }}>
         <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
           <a href="#" className="flex items-center gap-2.5">
             <div className="w-8 h-8 bg-[#FF4500] rounded-lg flex items-center justify-center">
@@ -101,37 +115,31 @@ export default function Home() {
             </div>
             <span className="text-white/50 text-xs font-semibold tracking-wider uppercase hidden sm:block">Car Rental</span>
           </a>
-          <a href="https://wa.me/60126565477" target="_blank"
-            className="bg-[#FF4500] text-white text-xs font-bold px-4 py-2 rounded-lg hover:brightness-110 active:scale-[0.97] transition-all"
-          >Book Now</a>
+          <div className="flex items-center gap-4">
+            <a href="#fleet" className="text-white/60 hover:text-white text-[10px] font-semibold uppercase tracking-wider transition-colors">Fleet</a>
+            <a href="https://wa.me/60126565477" target="_blank"
+              className="bg-[#FF4500] text-white text-xs font-bold px-4 py-2 rounded-lg hover:brightness-110 active:scale-[0.97] transition-all">Book Now</a>
+          </div>
         </div>
       </motion.nav>
-
       <div style={{ height: 56 }} />
       <div style={{ height: "calc(100vh - 56px)" }} />
 
-      {/* VIDEO BACKGROUND */}
       <Scrubber onProg={hp} />
 
-      {/* HERO OVERLAY */}
-      <section className="relative min-h-screen flex items-center justify-center bg-transparent">
+      {/* ─── HERO ─── */}
+      <section className="relative min-h-screen flex items-center justify-center">
         <div className="text-center px-5 max-w-3xl mx-auto">
-          <p className="text-[#FF4500] text-xs font-bold tracking-[0.25em] uppercase mb-4" style={f(0.05)}>
-            Sewa Lama Lagi Murah
-          </p>
+          <p className="text-[#FF4500] text-xs font-bold tracking-[0.25em] uppercase mb-4" style={f(0.05)}>Sewa Lama Lagi Murah</p>
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white leading-[0.88] mb-4" style={f(0.12)}>
             Rent The<br /><span className="text-[#FF4500]">Ride.</span><br />Own The<br /><span className="text-[#FF4500]">Road.</span>
           </h1>
-          <p className="text-white/50 text-sm md:text-base max-w-md mx-auto mb-8" style={f(0.22)}>
-            Premium cars · Honest prices · Free delivery Seremban
-          </p>
+          <p className="text-white/50 text-sm md:text-base max-w-md mx-auto mb-8" style={f(0.22)}>Premium cars · Honest prices · Free delivery Seremban</p>
           <div className="flex flex-col sm:flex-row justify-center gap-3" style={f(0.32)}>
             <a href="https://wa.me/60126565477" target="_blank"
-              className="bg-[#FF4500] text-white font-bold px-8 py-3.5 rounded-xl text-sm hover:brightness-110 active:scale-[0.97] transition-all"
-            >Book on WhatsApp</a>
+              className="bg-[#FF4500] text-white font-bold px-8 py-3.5 rounded-xl text-sm hover:brightness-110 active:scale-[0.97] transition-all">Book on WhatsApp</a>
             <a href="tel:+60126565477"
-              className="border border-white/20 text-white font-semibold px-8 py-3.5 rounded-xl text-sm hover:bg-white/5 active:scale-[0.97] transition-all"
-            >Call +60 12-656 5477</a>
+              className="border border-white/20 text-white font-semibold px-8 py-3.5 rounded-xl text-sm hover:bg-white/5 active:scale-[0.97] transition-all">Call +60 12-656 5477</a>
           </div>
           <div className="flex gap-8 justify-center mt-8" style={f(0.42)}>
             {[{ v: "50+", l: "Cars" }, { v: "1K+", l: "Clients" }, { v: "4.9★", l: "Rating" }].map((x) => (
@@ -144,26 +152,35 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FLEET */}
-      <section className="relative py-20 bg-black/60 backdrop-blur-sm">
+      {/* ─── MARQUEE ─── */}
+      <div className="relative py-2.5 bg-white/10 backdrop-blur-sm border-y border-white/10 overflow-hidden">
+        <div className="flex whitespace-nowrap" style={{ animation: "m 30s linear infinite" }}>
+          {Array.from({ length: 6 }).flatMap(() => [
+            "SEWA LAMA LAGI MURAH", "FREE DELIVERY", "ZERO DEPOSIT", "UNLIMITED MILEAGE", "24/7 SERVICE", "KLIA PICKUP"
+          ]).map((t, i) => (
+            <span key={i} className="text-[10px] font-bold text-white/60 uppercase tracking-[0.15em] mx-4">
+              {t} <span className="text-[#FF4500]">✦</span>
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* ─── FLEET ─── */}
+      <section id="fleet" className="relative py-20 bg-black/60 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-5">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-5xl font-black text-white">Choose Your Ride</h2>
-            <p className="text-white/40 text-sm mt-1">50+ cars · From RM 110/day</p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {[
-              { n: "Perodua Axia G1", p: "RM 110", s: "Hatchback", img: "/images/perodua-axia.png" },
-              { n: "Proton Exora", p: "RM 170", s: "MPV · 7 seats", img: "/images/proton-exora.png" },
-              { n: "Proton X50", p: "RM 250", s: "SUV", img: "/images/proton-x50.png" },
-              { n: "Toyota Vios", p: "RM 170", s: "Sedan", img: "/images/toyota-vios.png" },
-              { n: "Honda City RS", p: "RM 170", s: "Hybrid", img: "/images/honda-city.png" },
-              { n: "Toyota Alphard", p: "RM 700", s: "Luxury", img: "/images/car-luxury.png" },
-            ].map((car) => (
-              <div key={car.n}
+          <Reveal>
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-5xl font-black text-white">Choose Your Ride</h2>
+              <p className="text-white/40 text-sm mt-1">50+ cars · From RM 110/day</p>
+            </div>
+          </Reveal>
+          <motion.div variants={container} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-40px" }}
+            className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {CARS.map((car) => (
+              <motion.div key={car.n} variants={item}
                 className="bg-white/10 backdrop-blur-sm border border-white/10 rounded-xl overflow-hidden hover:bg-white/20 hover:-translate-y-1 transition-all duration-300 group"
               >
-                <div className="h-36 bg-gradient-to-br from-white/5 to-white/0 overflow-hidden">
+                <div className="h-36 overflow-hidden bg-gradient-to-br from-white/5 to-white/0">
                   <img src={car.img} alt={car.n} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                 </div>
                 <div className="p-4">
@@ -174,51 +191,135 @@ export default function Home() {
                     <a href="https://wa.me/60126565477" className="text-white/50 group-hover:text-[#FF4500] text-[10px] font-bold uppercase tracking-wider transition-colors">Book</a>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* 8 REASONS */}
+      {/* ─── 8 REASONS ─── */}
       <section className="relative py-20 bg-black/50 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-5">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-5xl font-black text-white">Eight Reasons We're Built Different</h2>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <Reveal>
+            <div className="text-center mb-12">
+              <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">Built Different</p>
+              <h2 className="text-3xl md:text-5xl font-black text-white">Eight Reasons We're Built Different</h2>
+              <p className="text-white/40 text-sm mt-1 max-w-xl mx-auto">Local team in Seremban. Tight fleet. Honest pricing.</p>
+            </div>
+          </Reveal>
+          <motion.div variants={container} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-40px" }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              "Zero Deposit", "Free Delivery", "Unlimited Mileage", "24/7 Service",
-              "Latest Models", "KLIA Pickup", "Best Rates", "Replacement Guaranteed",
-            ].map((t) => (
-              <div key={t}
-                className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 hover:border-[#FF4500]/30 transition-all"
+              { t: "Zero Deposit", d: "No security deposit needed." },
+              { t: "Free Delivery", d: "Complimentary within Seremban." },
+              { t: "Unlimited Mileage", d: "No distance limits." },
+              { t: "24/7 Service", d: "Round-the-clock support." },
+              { t: "Latest Models", d: "2024-2026 fleet." },
+              { t: "KLIA Pickup", d: "Meet & greet at both terminals." },
+              { t: "Best Rates", d: "From RM 110/day." },
+              { t: "Replacement", d: "If breakdown occurs." },
+            ].map((r) => (
+              <motion.div key={r.t} variants={item}
+                className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 hover:border-[#FF4500]/30 transition-all duration-300"
               >
-                <h3 className="font-bold text-white text-sm">{t}</h3>
-              </div>
+                <h3 className="font-bold text-white text-sm">{r.t}</h3>
+                <p className="text-white/40 text-[11px] mt-1.5 leading-relaxed">{r.d}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ─── REVIEWS ─── */}
+      <section className="relative py-20 bg-black/60 backdrop-blur-sm">
+        <div className="max-w-5xl mx-auto px-5">
+          <Reveal>
+            <div className="text-center mb-12">
+              <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">Testimonials</p>
+              <h2 className="text-3xl md:text-5xl font-black text-white">What Our Clients Say</h2>
+            </div>
+          </Reveal>
+          <motion.div variants={container} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-40px" }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { q: '"Professional service, spotless car. Will definitely rent again."', a: "— Ahmad R.", s: "★★★★★" },
+              { q: '"Smooth booking and free delivery saved my time. Highly recommended!"', a: "— Sarah L.", s: "★★★★★" },
+              { q: '"Best car rental in Seremban. Zero deposit, unlimited mileage."', a: "— Mike C.", s: "★★★★★" },
+            ].map((r, i) => (
+              <motion.div key={i} variants={item}
+                className="bg-white/5 border border-white/10 rounded-xl p-6 text-center hover:bg-white/10 hover:-translate-y-0.5 transition-all duration-300"
+              >
+                <p className="text-[#FFD700] text-sm mb-3">{r.s}</p>
+                <p className="text-white/80 text-sm leading-relaxed mb-3">{r.q}</p>
+                <p className="text-white/40 text-xs">{r.a}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ─── FAQ ─── */}
+      <section className="relative py-20 bg-black/50 backdrop-blur-sm">
+        <div className="max-w-3xl mx-auto px-5">
+          <Reveal>
+            <div className="text-center mb-12">
+              <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">Questions?</p>
+              <h2 className="text-3xl md:text-5xl font-black text-white">FAQ</h2>
+            </div>
+          </Reveal>
+          <div className="space-y-2">
+            {[
+              { q: "What documents do I need?", a: "Valid license, IC/passport, recent utility bill." },
+              { q: "How much deposit?", a: "Zero deposit. Rare in the industry." },
+              { q: "Mileage limit?", a: "No. Unlimited on all rentals." },
+              { q: "Breakdown?", a: "24/7 roadside + replacement guaranteed." },
+            ].map((f, i) => (
+              <details key={i} className="group border border-white/10 rounded-xl overflow-hidden bg-white/5 backdrop-blur-sm">
+                <summary className="px-5 py-3.5 cursor-pointer text-white font-semibold text-sm flex items-center justify-between list-none hover:bg-white/5 transition-colors">
+                  <span>{f.q}</span>
+                  <span className="text-[#FF4500] group-open:rotate-180 transition-transform text-xs shrink-0">▾</span>
+                </summary>
+                <div className="px-5 pb-3.5 text-white/50 text-xs leading-relaxed border-t border-white/5 pt-2.5">{f.a}</div>
+              </details>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="relative py-16 bg-[#FF4500]">
+      {/* ─── CTA ─── */}
+      <section className="bg-[#FF4500] py-16">
         <div className="max-w-3xl mx-auto px-5 text-center">
-          <h2 className="text-3xl md:text-5xl font-black text-white mb-3">Ready To Hit The Road?</h2>
-          <p className="text-white/70 text-sm max-w-md mx-auto mb-6">Reply in minutes. Zero paperwork. Be on the road within the hour.</p>
-          <a href="https://wa.me/60126565477" target="_blank"
-            className="bg-black text-white font-bold px-8 py-3.5 rounded-xl text-sm inline-block hover:brightness-110 active:scale-[0.97] transition-all"
-          >Book via WhatsApp</a>
+          <Reveal>
+            <h2 className="text-3xl md:text-5xl font-black text-white mb-3">Ready To Hit The Road?</h2>
+            <p className="text-white/70 text-sm max-w-md mx-auto mb-8">Reply in minutes. Zero paperwork. Be on the road within the hour.</p>
+            <div className="flex flex-col sm:flex-row justify-center gap-3">
+              <a href="https://wa.me/60126565477" target="_blank"
+                className="bg-black text-white font-bold px-8 py-3.5 rounded-xl text-sm hover:brightness-110 active:scale-[0.97] transition-all">Book via WhatsApp</a>
+              <a href="tel:+60126565477"
+                className="border-2 border-white/20 text-white font-semibold px-8 py-3.5 rounded-xl text-sm hover:bg-white/10 active:scale-[0.97] transition-all">Call +60 12-656 5477</a>
+            </div>
+          </Reveal>
         </div>
       </section>
 
-      {/* FOOTER */}
+      {/* ─── FOOTER ─── */}
       <footer className="bg-black/90 py-10 text-center border-t border-white/5">
         <div className="max-w-5xl mx-auto px-5">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="w-8 h-8 bg-[#FF4500] flex items-center justify-center font-black text-white text-xs rounded-lg">JRV</div>
+            <span className="text-white font-bold text-sm">JRV Car Rental</span>
+          </div>
           <p className="text-white/30 text-xs mb-1">51, Jln S2 B18, Seremban 2 · 24 hours · 7 days</p>
-          <p className="text-white/40 text-xs mt-4">© 2026 JRV Rental Services.</p>
+          <div className="flex justify-center gap-5 my-4">
+            <a href="https://wa.me/60126565477" className="text-white/40 hover:text-[#FF4500] text-xs transition-colors">WhatsApp</a>
+            <a href="tel:+60126565477" className="text-white/40 hover:text-[#FF4500] text-xs transition-colors">Call</a>
+            <a href="https://jrvservices.co" className="text-white/40 hover:text-[#FF4500] text-xs transition-colors">Website</a>
+          </div>
+          <p className="text-white/40 text-[11px]">© 2026 JRV Rental Services. Powered by <a href="https://jrvsystems.app" className="text-[#FF4500] hover:underline">JRV Systems</a></p>
         </div>
       </footer>
+
+      <style>{`@keyframes m{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}`}</style>
     </main>
   );
 }

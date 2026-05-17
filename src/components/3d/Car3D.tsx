@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useEffect, useState, useCallback } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { useRef, useEffect, useState } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, Environment, ContactShadows, useGLTF, Center } from "@react-three/drei";
 import * as THREE from "three";
 
@@ -11,41 +11,31 @@ function X50Model({ onLoad }: { onLoad?: () => void }) {
   const { scene } = useGLTF("/models/proton-x50.glb");
 
   useEffect(() => {
-    if (scene) {
-      // Traverse and apply materials
-      scene.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          child.castShadow = true;
-          child.receiveShadow = true;
-          // Apply orange tint to body materials
-          if (child.material && "color" in child.material) {
-            const mat = child.material as THREE.MeshStandardMaterial;
-            // Only tint non-black, non-glass materials
-            if (
-              mat.color &&
-              mat.color.getHex() !== 0x000000 &&
-              mat.color.getHex() !== 0x111111
-            ) {
-              mat.color.set("#FF4500");
-            }
-          }
-        }
-      });
-      onLoad?.();
-    }
-  }, [scene, onLoad]);
+    if (!scene) return;
 
-  // Auto-compute bounding box for scaling
-  const box = useRef(new THREE.Box3());
+    scene.traverse((child) => {
+      if (!(child instanceof THREE.Mesh)) return;
+      child.castShadow = true;
+      child.receiveShadow = true;
+
+      const mat = child.material as THREE.MeshStandardMaterial;
+      if (!mat || !mat.color) return;
+
+      // Material "00 - BODY" is the body paint → JRV orange
+      if (mat.name === "00 - BODY") {
+        mat.color.set("#FF4500");
+        mat.metalness = 0.6;
+        mat.roughness = 0.3;
+      }
+    });
+
+    onLoad?.();
+  }, [scene, onLoad]);
 
   return (
     <group ref={group}>
       <Center>
-        <primitive
-          object={scene.clone()}
-          scale={0.6}
-          position={[0, -0.1, 0]}
-        />
+        <primitive object={scene.clone()} scale={0.6} position={[0, -0.1, 0]} />
       </Center>
     </group>
   );
@@ -54,64 +44,39 @@ function X50Model({ onLoad }: { onLoad?: () => void }) {
 // ─── SCROLL-REACTIVE SCENE ──────────────────────────
 function Scene({ scrollProgress }: { scrollProgress: number }) {
   const mesh = useRef<THREE.Group>(null);
-  const [loaded, setLoaded] = useState(false);
 
-  useFrame((_, delta) => {
+  useFrame(() => {
     if (!mesh.current) return;
-    // Rotate based on scroll (full 360° through section)
     mesh.current.rotation.y = scrollProgress * Math.PI * 2;
-    // Slight tilt for dynamic feel
     mesh.current.rotation.x = Math.sin(scrollProgress * Math.PI) * 0.08;
   });
 
   return (
     <>
-      {/* Environment & Lighting */}
       <ambientLight intensity={0.5} />
-      <directionalLight
-        position={[5, 8, 5]}
-        intensity={1.8}
-        castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
-      />
-      <directionalLight
-        position={[-3, 5, -3]}
-        intensity={0.6}
-        color="#FF4500"
-      />
+      <directionalLight position={[5, 8, 5]} intensity={1.8} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
+      <directionalLight position={[-3, 5, -3]} intensity={0.6} color="#FF4500" />
       <pointLight position={[0, 3, 2]} intensity={0.4} color="#FF4500" />
 
       <group ref={mesh}>
         <Float speed={1.2} rotationIntensity={0.08} floatIntensity={0.2}>
-          <X50Model onLoad={() => setLoaded(true)} />
+          <X50Model />
         </Float>
       </group>
 
-      <ContactShadows
-        position={[0, -0.5, 0]}
-        opacity={0.5}
-        scale={8}
-        blur={2.5}
-        far={1}
-      />
+      <ContactShadows position={[0, -0.5, 0]} opacity={0.5} scale={8} blur={2.5} far={1} />
       <Environment preset="studio" />
     </>
   );
 }
 
-// ─── PRELOAD ──────────────────────────────────────────
 useGLTF.preload("/models/proton-x50.glb");
 
 // ─── EXPORTED CANVAS ─────────────────────────────────
 export default function Car3D({ progress = 0 }: { progress?: number }) {
   return (
     <div className="w-full h-full">
-      <Canvas
-        camera={{ position: [4.5, 2.5, 6], fov: 40 }}
-        dpr={[1, 1.5]}
-        gl={{ antialias: true, alpha: false }}
-      >
+      <Canvas camera={{ position: [4.5, 2.5, 6], fov: 40 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: false }}>
         <Scene scrollProgress={progress} />
       </Canvas>
     </div>

@@ -62,6 +62,7 @@ function CarView({ modelPath }: { modelPath: string }) {
       </group>
     </Center>
   );
+}
 
 // ─── SCENE ──────────────────────────────────────────
 function Scene({ modelPath }: { modelPath: string }) {

@@ -79,7 +79,7 @@ function Scene({ modelPath }: { modelPath: string }) {
 }
 
 // ─── EXPORTED COMPONENT ─────────────────────────────
-export default function FleetShowroom() {
+export default function FleetShowroom({ onBook }: { onBook?: (car: string) => void }) {
   const [index, setIndex] = useState(0);
   const car = FLEET[index];
 
@@ -116,13 +116,12 @@ export default function FleetShowroom() {
             </div>
             <div className="text-right">
               <span className="text-[#FF4500] font-bold text-xl">{car.price}<span className="text-white/20 text-xs">/day</span></span>
-              <a
-                href={`https://wa.me/60126565477?text=Hi%2C%20I%27m%20interested%20in%20renting%20${encodeURIComponent(car.name)}`}
-                target="_blank"
+              <button
+                onClick={() => onBook?.(car.name)}
                 className="block mt-1 text-[10px] text-white/50 hover:text-[#FF4500] font-bold uppercase tracking-wider transition-colors"
               >
                 Book Now
-              </a>
+              </button>
             </div>
           </div>
 

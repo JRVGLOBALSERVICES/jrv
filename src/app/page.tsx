@@ -3,6 +3,7 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 import dynamic from "next/dynamic";
+import BookingModal from "@/components/booking/BookingModal";
 
 const Car3D = dynamic(() => import("@/components/3d/Car3D"), { ssr: false });
 const FleetShowroom = dynamic(() => import("@/components/fleet/FleetShowroom"), { ssr: false });
@@ -140,6 +141,7 @@ export default function Home() {
   const [sy, setSy] = useState(0);
   const [vp, setVp] = useState(0);
   const [carScene, setCarScene] = useState<any>(null);
+  const [booking, setBooking] = useState<{ open: boolean; car?: string }>({ open: false });
   useEffect(() => { setVp(window.innerHeight); }, []);
 
   // Load X50 model once, outside Canvas
@@ -272,7 +274,7 @@ export default function Home() {
         </div>
       </section>
 
-      <FleetShowroom />
+      <FleetShowroom onBook={(car) => setBooking({ open: true, car })} />
 
       {/* ─── 8 REASONS ─── */}
       <section className="relative z-10 py-20 bg-black/50 backdrop-blur-sm">
@@ -395,6 +397,12 @@ export default function Home() {
       </footer>
 
       <style>{`@keyframes m{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}`}</style>
+
+      <BookingModal
+        open={booking.open}
+        preselectedCar={booking.car}
+        onClose={() => setBooking({ open: false })}
+      />
     </main>
   );
 }

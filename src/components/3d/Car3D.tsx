@@ -1,15 +1,45 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Float, Environment, ContactShadows, Center } from "@react-three/drei";
 import * as THREE from "three";
 
-// ─── PROPS ──────────────────────────────────────────
-interface Car3DProps {
-  progress?: number;
-  scene?: THREE.Group | null;
+// Module-level cache — loaded once outside React/Canvas
+let cachedScene: THREE.Group | null = null;
+let loadingStarted = false;
+
+function startLoading() {
+  if (loadingStarted || cachedScene) return;
+  loadingStarted = true;
+  import("three").then((THREE) =>
+    import("three/addons/loaders/GLTFLoader.js").then(({ GLTFLoader }) => {
+      const loader = new GLTFLoader();
+      loader.load(
+        "/models/proton-x50.glb",
+        (gltf) => {
+          gltf.scene.traverse((child: any) => {
+            if (!(child instanceof THREE.Mesh)) return;
+            child.castShadow = true;
+            child.receiveShadow = true;
+            const mat = child.material as THREE.MeshStandardMaterial;
+            if (mat && mat.name === "00 - BODY") {
+              mat.color.set("#FF4500");
+              mat.metalness = 0.6;
+              mat.roughness = 0.3;
+            }
+          });
+          cachedScene = gltf.scene;
+        },
+        undefined,
+        (err: any) => console.error("X50 load failed:", err)
+      );
+    })
+  );
 }
+
+// Start loading immediately (outside component lifecycle)
+if (typeof window !== "undefined") startLoading();
 
 // ─── CAMERA ─────────────────────────────────────────
 function CameraManager() {
@@ -28,35 +58,32 @@ function CameraManager() {
   return null;
 }
 
-// ─── MODEL (receives pre-loaded scene) ──────────────
-function X50Model({ scene }: { scene: THREE.Group }) {
-  // Clone to avoid shared mutations
-  const clone = useRef<THREE.Group | null>(null);
+// ─── MODEL ──────────────────────────────────────────
+function X50Model() {
+  const cloneRef = useRef<THREE.Group | null>(null);
 
-  if (!clone.current) {
-    clone.current = scene.clone() as THREE.Group;
-    clone.current.traverse((child) => {
-      if (!(child instanceof THREE.Mesh)) return;
-      child.castShadow = true;
-      child.receiveShadow = true;
-      const mat = child.material as THREE.MeshStandardMaterial;
-      if (mat && mat.name === "00 - BODY") {
-        mat.color.set("#FF4500");
-        mat.metalness = 0.6;
-        mat.roughness = 0.3;
-      }
-    });
+  if (!cachedScene) {
+    return (
+      <mesh position={[0, 0, 0]}>
+        <boxGeometry args={[0.5, 0.5, 0.5]} />
+        <meshStandardMaterial color="#FF4500" />
+      </mesh>
+    );
+  }
+
+  if (!cloneRef.current) {
+    cloneRef.current = cachedScene.clone() as THREE.Group;
   }
 
   return (
     <Center>
-      <primitive object={clone.current} scale={0.6} position={[0, -0.1, 0]} />
+      <primitive object={cloneRef.current} scale={0.6} position={[0, -0.1, 0]} />
     </Center>
   );
 }
 
 // ─── SCENE ──────────────────────────────────────────
-function Scene({ scrollProgress, scene }: { scrollProgress: number; scene: THREE.Group | null }) {
+function Scene({ scrollProgress }: { scrollProgress: number }) {
   const mesh = useRef<THREE.Group>(null);
   const mouse = useRef({ x: 0, y: 0 });
   const target = useRef({ rotY: 0, tiltX: 0, tiltY: 0 });
@@ -93,22 +120,14 @@ function Scene({ scrollProgress, scene }: { scrollProgress: number; scene: THREE
   return (
     <>
       <CameraManager />
-      <ambientLight intensity={1.0} />
-      <directionalLight position={[5, 8, 5]} intensity={2.5} />
+      <ambientLight intensity={1.2} />
+      <directionalLight position={[5, 8, 5]} intensity={3} />
       <directionalLight position={[-3, 5, -3]} intensity={0.8} color="#FF4500" />
       <pointLight position={[0, 3, 2]} intensity={0.6} color="#FF4500" />
 
       <group ref={mesh}>
         <Float speed={1.2} rotationIntensity={0.08} floatIntensity={0.25}>
-          {scene ? (
-            <X50Model scene={scene} />
-          ) : (
-            // Fallback: orange box so it's never blank
-            <mesh position={[0, 0, 0]}>
-              <boxGeometry args={[0.5, 0.5, 0.5]} />
-              <meshStandardMaterial color="#FF4500" />
-            </mesh>
-          )}
+          <X50Model />
         </Float>
       </group>
 
@@ -118,68 +137,12 @@ function Scene({ scrollProgress, scene }: { scrollProgress: number; scene: THREE
   );
 }
 
-// ─── LOADER (outside Canvas) ─────────────────────────
-function ModelLoader({ onReady }: { onReady: (s: THREE.Group) => void }) {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    import("three").then((THREE) => {
-      import("three/addons/loaders/GLTFLoader.js").then(({ GLTFLoader }) => {
-        const loader = new GLTFLoader();
-        loader.load(
-          "/models/proton-x50.glb",
-          (gltf) => {
-            if (!cancelled) {
-              onReady(gltf.scene);
-              setLoading(false);
-            }
-          },
-          undefined,
-          (err) => {
-            console.error("GLTF load failed:", err);
-            setLoading(false);
-          }
-        );
-      });
-    });
-
-    return () => { cancelled = true; };
-  }, [onReady]);
-
-  return null;
-}
-
-// ─── EXPORTED COMPONENT ─────────────────────────────
-export default function Car3D({ progress = 0, scene }: Car3DProps) {
-  const [myScene, setMyScene] = useState<THREE.Group | null>(scene || null);
-
-  useEffect(() => {
-    if (scene) setMyScene(scene);
-  }, [scene]);
-
-  const handleReady = (s: THREE.Group) => {
-    s.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
-        const mat = child.material as THREE.MeshStandardMaterial;
-        if (mat && mat.name === "00 - BODY") {
-          mat.color.set("#FF4500");
-          mat.metalness = 0.6;
-          mat.roughness = 0.3;
-        }
-      }
-    });
-    setMyScene(s);
-  };
-
+// ─── EXPORT ─────────────────────────────────────────
+export default function Car3D({ progress = 0 }: { progress?: number }) {
   return (
-    <div className="w-full h-full" style={{ minHeight: '100%' }}>
-      <ModelLoader onReady={handleReady} />
+    <div className="w-full h-full" style={{ minHeight: "100%" }}>
       <Canvas dpr={[1, 1.5]} gl={{ antialias: true, alpha: false }}>
-        <Scene scrollProgress={progress} scene={myScene} />
+        <Scene scrollProgress={progress} />
       </Canvas>
     </div>
   );

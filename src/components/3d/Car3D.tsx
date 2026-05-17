@@ -1,14 +1,12 @@
 "use client";
 
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useMemo, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Float, Environment, ContactShadows, useGLTF, Center } from "@react-three/drei";
+import { Float, Environment, ContactShadows } from "@react-three/drei";
 import * as THREE from "three";
 
-// ─── SIMPLE 3D CAR MODEL (procedural — proven to work) ──
+// ─── SIMPLE 3D CAR MODEL ────────────────────────────
 function CarBody() {
-  const group = useRef<THREE.Group>(null);
-
   const bodyMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: "#FF4500",
     metalness: 0.7,
@@ -37,12 +35,11 @@ function CarBody() {
   }), []);
 
   return (
-    <group ref={group}>
+    <group>
       {/* Main body */}
       <mesh position={[0, 0.35, 0]} material={bodyMat}>
         <boxGeometry args={[1.6, 0.4, 3.2]} />
       </mesh>
-      {/* Crankcase / lower body */}
       <mesh position={[0, 0.15, 0]} material={bodyMat}>
         <boxGeometry args={[1.4, 0.2, 2.8]} />
       </mesh>
@@ -50,15 +47,15 @@ function CarBody() {
       <mesh position={[0, 0.7, -0.3]} material={glassMat}>
         <boxGeometry args={[1.4, 0.4, 1.6]} />
       </mesh>
-      {/* Front windshield */}
+      {/* Windshield */}
       <mesh position={[0, 0.65, 0.55]} rotation={[0.3, 0, 0]} material={glassMat}>
         <planeGeometry args={[1.3, 0.45]} />
       </mesh>
-      {/* Hood line */}
+      {/* Hood */}
       <mesh position={[0, 0.4, 1.3]} material={bodyMat}>
         <boxGeometry args={[1.3, 0.05, 0.8]} />
       </mesh>
-      {/* Trunk line */}
+      {/* Trunk */}
       <mesh position={[0, 0.42, -1.3]} material={bodyMat}>
         <boxGeometry args={[1.3, 0.05, 0.6]} />
       </mesh>
@@ -109,61 +106,18 @@ function CarBody() {
   );
 }
 
-// ─── CAMERA ─────────────────────────────────────────
-function CameraManager() {
-  const { camera, size } = useThree();
-
-  useEffect(() => {
-    const cam = camera as THREE.PerspectiveCamera;
-    const isMobile = size.width < 600;
-    cam.position.set(isMobile ? 3.5 : 2.5, isMobile ? 1.5 : 1.5, isMobile ? 5 : 3.5);
-    cam.far = 100;
-    cam.near = 0.05;
-    cam.fov = isMobile ? 50 : 35;
-    cam.updateProjectionMatrix();
-  }, [camera, size.width]);
-
-  return null;
-}
-
-// ─── SCROLL + MOUSE REACTIVE SCENE ──────────────────
+// ─── SCENE ──────────────────────────────────────────
 function Scene({ scrollProgress }: { scrollProgress: number }) {
   const mesh = useRef<THREE.Group>(null);
-  const mouse = useRef({ x: 0, y: 0 });
-  const target = useRef({ rotY: 0, tiltX: 0, tiltY: 0 });
 
-  useEffect(() => {
-    const onMove = (e: MouseEvent | TouchEvent) => {
-      const cx = "touches" in e ? e.touches[0].clientX : e.clientX;
-      const cy = "touches" in e ? e.touches[0].clientY : e.clientY;
-      mouse.current.x = (cx / window.innerWidth) * 2 - 1;
-      mouse.current.y = -(cy / window.innerHeight) * 2 + 1;
-    };
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("touchmove", onMove, { passive: true });
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("touchmove", onMove);
-    };
-  }, []);
-
-  useFrame((_, delta) => {
+  useFrame(() => {
     if (!mesh.current) return;
-    const scrollRotY = scrollProgress * Math.PI * 2;
-    const mouseTiltX = mouse.current.y * 0.15;
-    const mouseTiltY = mouse.current.x * 0.2;
-    const speed = 1 - Math.pow(0.02, delta);
-    target.current.rotY += (scrollRotY - target.current.rotY) * speed;
-    target.current.tiltX += (mouseTiltX - target.current.tiltX) * speed;
-    target.current.tiltY += (mouseTiltY - target.current.tiltY) * speed;
-    mesh.current.rotation.x = target.current.tiltX;
-    mesh.current.rotation.y = target.current.rotY + target.current.tiltY;
-    mesh.current.rotation.z = Math.sin(scrollProgress * Math.PI) * 0.04;
+    mesh.current.rotation.y = scrollProgress * Math.PI * 2;
+    mesh.current.rotation.x = Math.sin(scrollProgress * Math.PI) * 0.08;
   });
 
   return (
     <>
-      <CameraManager />
       <ambientLight intensity={0.4} />
       <directionalLight position={[5, 8, 5]} intensity={1.5} />
       <directionalLight position={[-3, 5, -3]} intensity={0.5} color="#FF4500" />
@@ -184,8 +138,8 @@ function Scene({ scrollProgress }: { scrollProgress: number }) {
 // ─── EXPORTED CANVAS ─────────────────────────────────
 export default function Car3D({ progress = 0 }: { progress?: number }) {
   return (
-    <div className="w-full h-full" style={{ minHeight: "100%" }}>
-      <Canvas dpr={[1, 1.5]} gl={{ antialias: true, alpha: false }}>
+    <div className="w-full h-full">
+      <Canvas camera={{ position: [2.5, 1.5, 3.5], fov: 35 }}>
         <Scene scrollProgress={progress} />
       </Canvas>
     </div>

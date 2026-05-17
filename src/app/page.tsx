@@ -97,7 +97,7 @@ const CARS = [
 ];
 
 // ─── 3D SHOWCASE SECTION ────────────────────────────
-function Showcase3D() {
+function Showcase3D({ scene }: { scene?: any }) {
   const sectionRef = useRef<HTMLElement>(null);
   const [progress, setProgress] = useState(0);
 
@@ -123,7 +123,7 @@ function Showcase3D() {
   return (
     <section ref={sectionRef} className="relative z-10 bg-black/80 min-h-screen flex flex-col items-center justify-center overflow-hidden">
       <div className="absolute inset-0">
-        <Car3D progress={progress} />
+        <Car3D progress={progress} scene={scene} />
       </div>
       <div className="relative z-10 text-center px-5 max-w-xl">
         <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">Interactive 3D</p>
@@ -138,7 +138,38 @@ function Showcase3D() {
 export default function Home() {
   const [sy, setSy] = useState(0);
   const [vp, setVp] = useState(0);
+  const [carScene, setCarScene] = useState<any>(null);
   useEffect(() => { setVp(window.innerHeight); }, []);
+
+  // Load X50 model once, outside Canvas
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const THREE = await import("three");
+      const { GLTFLoader } = await import("three/addons/loaders/GLTFLoader.js");
+      const loader = new GLTFLoader();
+      loader.load("/models/proton-x50.glb",
+        (gltf) => {
+          if (cancelled) return;
+          gltf.scene.traverse((child: any) => {
+            if (!(child instanceof (THREE as any).Mesh)) return;
+            child.castShadow = true;
+            child.receiveShadow = true;
+            const mat: any = child.material;
+            if (mat && mat.name === "00 - BODY") {
+              mat.color.set("#FF4500");
+              mat.metalness = 0.6;
+              mat.roughness = 0.3;
+            }
+          });
+          setCarScene(gltf.scene);
+        },
+        undefined,
+        (err: any) => console.error("X50 load error:", err)
+      );
+    })();
+    return () => { cancelled = true; };
+  }, []);
   const p = vp > 0 ? Math.min(1, sy / vp) : 0;
   const hp = useCallback((n: number) => setSy(n * (window.innerHeight || 720)), []);
   const f = (s: number) => useFade(s, p);
@@ -193,7 +224,7 @@ export default function Home() {
       </section>
 
       {/* ─── 3D SHOWCASE ─── */}
-      <Showcase3D />
+      <Showcase3D scene={carScene} />
 
       {/* ─── MARQUEE ─── */}
       <div className="relative z-10 py-2.5 bg-white/10 backdrop-blur-sm border-y border-white/10 overflow-hidden">

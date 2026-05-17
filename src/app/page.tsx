@@ -4,6 +4,9 @@ import { useRef, useState, useCallback, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 import dynamic from "next/dynamic";
 import BookingModal from "@/components/booking/BookingModal";
+import PricingCalculator from "@/components/PricingCalculator";
+import MapSection from "@/components/MapSection";
+import Globe from "@/components/Globe";
 
 const Car3D = dynamic(() => import("@/components/3d/Car3D"), { ssr: false });
 const FleetShowroom = dynamic(() => import("@/components/fleet/FleetShowroom"), { ssr: false });
@@ -310,6 +313,8 @@ export default function Home() {
         </div>
       </section>
 
+      <PricingCalculator />
+
       {/* ─── REVIEWS ─── */}
       <section className="relative z-10 py-20 bg-black/60 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-5">
@@ -365,6 +370,20 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ─── GLOBE ─── */}
+      <section className="relative z-10 min-h-[500px] flex items-center justify-center overflow-hidden bg-black/80">
+        <div className="absolute inset-0">
+          <Globe />
+        </div>
+        <div className="relative z-10 text-center px-5">
+          <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">Where We Serve</p>
+          <h2 className="text-3xl md:text-5xl font-black text-white">Seremban & Beyond</h2>
+          <p className="text-white/40 text-sm mt-2 max-w-md mx-auto">Free delivery to KLIA, KL Sentral, and all of Seremban</p>
+        </div>
+      </section>
+
+      <MapSection />
 
       {/* ─── CTA ─── */}
       <section className="relative z-10 bg-[#FF4500] py-16">

@@ -58,7 +58,7 @@ function Scrubber({ onProg }: { onProg: (n: number) => void }) {
   }, [ok, draw, onProg]);
 
   return (
-    <div className="fixed inset-0 bg-black z-0">
+    <div className="fixed inset-0 bg-black -z-10">
       <canvas ref={c} className="w-full h-full block" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60 pointer-events-none" />
       {!ok && <div className="absolute inset-0 flex items-center justify-center bg-black"><div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" /></div>}
@@ -153,7 +153,7 @@ export default function Home() {
       </section>
 
       {/* ─── MARQUEE ─── */}
-      <div className="relative py-2.5 bg-white/10 backdrop-blur-sm border-y border-white/10 overflow-hidden">
+      <div className="relative z-10 py-2.5 bg-white/10 backdrop-blur-sm border-y border-white/10 overflow-hidden">
         <div className="flex whitespace-nowrap" style={{ animation: "m 30s linear infinite" }}>
           {Array.from({ length: 6 }).flatMap(() => [
             "SEWA LAMA LAGI MURAH", "FREE DELIVERY", "ZERO DEPOSIT", "UNLIMITED MILEAGE", "24/7 SERVICE", "KLIA PICKUP"
@@ -166,7 +166,7 @@ export default function Home() {
       </div>
 
       {/* ─── FLEET ─── */}
-      <section id="fleet" className="relative py-20 bg-black/60 backdrop-blur-sm">
+      <section id="fleet" className="relative z-10 py-20 bg-black/60 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-5">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-5xl font-black text-white">Choose Your Ride</h2>
@@ -197,7 +197,7 @@ export default function Home() {
       </section>
 
       {/* ─── 8 REASONS ─── */}
-      <section className="relative py-20 bg-black/50 backdrop-blur-sm">
+      <section className="relative z-10 py-20 bg-black/50 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-5">
             <div className="text-center mb-12">
               <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">Built Different</p>
@@ -229,7 +229,7 @@ export default function Home() {
       </section>
 
       {/* ─── REVIEWS ─── */}
-      <section className="relative py-20 bg-black/60 backdrop-blur-sm">
+      <section className="relative z-10 py-20 bg-black/60 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-5">
             <div className="text-center mb-12">
               <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">Testimonials</p>
@@ -256,7 +256,7 @@ export default function Home() {
       </section>
 
       {/* ─── FAQ ─── */}
-      <section className="relative py-20 bg-black/50 backdrop-blur-sm">
+      <section className="relative z-10 py-20 bg-black/50 backdrop-blur-sm">
         <div className="max-w-3xl mx-auto px-5">
             <div className="text-center mb-12">
               <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">Questions?</p>
@@ -283,7 +283,7 @@ export default function Home() {
       </section>
 
       {/* ─── CTA ─── */}
-      <section className="bg-[#FF4500] py-16">
+      <section className="relative z-10 bg-[#FF4500] py-16">
         <div className="max-w-3xl mx-auto px-5 text-center">
             <h2 className="text-3xl md:text-5xl font-black text-white mb-3">Ready To Hit The Road?</h2>
             <p className="text-white/70 text-sm max-w-md mx-auto mb-8">Reply in minutes. Zero paperwork. Be on the road within the hour.</p>

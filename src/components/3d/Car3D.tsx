@@ -99,7 +99,7 @@ function X50Model({ scene }: { scene: THREE.Group }) {
 
   return (
     <Center>
-      <primitive object={cloneRef.current} scale={0.6} position={[0, -0.1, 0]} />
+      <primitive object={cloneRef.current} scale={0.35} position={[0, -0.15, 0]} />
     </Center>
   );
 }
@@ -137,7 +137,7 @@ function Scene({ scrollProgress, scene }: { scrollProgress: number; scene: THREE
 export default function Car3D({ progress = 0, scene }: Car3DProps) {
   return (
     <div className="w-full h-full">
-      <Canvas camera={{ position: [2.5, 1.5, 3.5], fov: 35 }}>
+      <Canvas camera={{ position: [4, 2, 5.5], fov: 35 }}>
         <Scene scrollProgress={progress} scene={scene || null} />
       </Canvas>
     </div>

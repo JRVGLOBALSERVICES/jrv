@@ -8,11 +8,10 @@ import * as THREE from "three";
 // ─── MODEL LOADER ────────────────────────────────────
 function X50Model() {
   const { scene } = useGLTF("/models/proton-x50.glb");
-  const [ready, setReady] = useState(false);
 
-  useEffect(() => {
+  // Modify materials synchronously during render phase
+  useMemo(() => {
     if (!scene) return;
-
     scene.traverse((child) => {
       if (!(child instanceof THREE.Mesh)) return;
       child.castShadow = true;
@@ -27,11 +26,7 @@ function X50Model() {
         mat.roughness = 0.3;
       }
     });
-
-    setReady(true);
   }, [scene]);
-
-  if (!ready) return null;
 
   return (
     <Center>

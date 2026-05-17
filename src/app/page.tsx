@@ -2,6 +2,9 @@
 
 import { useRef, useState, useCallback, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
+import dynamic from "next/dynamic";
+
+const Car3D = dynamic(() => import("@/components/3d/Car3D"), { ssr: false });
 
 const FRAMES = 61;
 const fSrc = (i: number) => `/frames/frame_${String(i + 1).padStart(4, "0")}.jpg`;
@@ -81,7 +84,6 @@ function useFade(start: number, p: number) {
   return { opacity: v, transform: `translateY(${(1 - v) * 30}px)` };
 }
 
-// ─── CARS ─────────────────────────────────────────────
 const CARS = [
   { n: "Perodua Axia G1", p: "RM 110", s: "Hatchback", img: "/images/perodua-axia.png" },
   { n: "Perodua Axia G2", p: "RM 120", s: "Hatchback", img: "/images/car-hatchback.png" },
@@ -93,6 +95,42 @@ const CARS = [
   { n: "Mitsubishi Xpander", p: "RM 350", s: "MPV", img: "/images/car-suv.png" },
   { n: "Toyota Alphard", p: "RM 700", s: "Luxury", img: "/images/car-luxury.png" },
 ];
+
+// ─── 3D SHOWCASE SECTION ────────────────────────────
+function Showcase3D() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const l = (window as any).__lenis;
+    if (!l) return;
+    const update = () => {
+      const el = sectionRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const h = rect.height;
+      const visible = Math.max(0, Math.min(h, window.innerHeight - rect.top));
+      const pct = visible / h;
+      setProgress(Math.max(0, Math.min(1, pct)));
+    };
+    l.on("scroll", update);
+    update();
+    return () => l.off("scroll", update);
+  }, []);
+
+  return (
+    <section ref={sectionRef} className="relative z-10 bg-black/80 min-h-screen flex flex-col items-center justify-center overflow-hidden">
+      <div className="absolute inset-0">
+        <Car3D progress={progress} />
+      </div>
+      <div className="relative z-10 text-center px-5 max-w-xl">
+        <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">Interactive 3D</p>
+        <h2 className="text-3xl md:text-5xl font-black text-white mb-2">Explore in 3D</h2>
+        <p className="text-white/40 text-sm">Scroll to rotate · Built with Three.js</p>
+      </div>
+    </section>
+  );
+}
 
 // ─── PAGE ─────────────────────────────────────────────
 export default function Home() {
@@ -128,7 +166,7 @@ export default function Home() {
       <Scrubber onProg={hp} />
 
       {/* ─── HERO ─── */}
-      <section className="relative min-h-screen flex items-center justify-center">
+      <section className="relative z-10 min-h-screen flex items-center justify-center">
         <div className="text-center px-5 max-w-3xl mx-auto">
           <p className="text-[#FF4500] text-xs font-bold tracking-[0.25em] uppercase mb-4" style={f(0.05)}>Sewa Lama Lagi Murah</p>
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white leading-[0.88] mb-4" style={f(0.12)}>
@@ -152,6 +190,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ─── 3D SHOWCASE ─── */}
+      <Showcase3D />
+
       {/* ─── MARQUEE ─── */}
       <div className="relative z-10 py-2.5 bg-white/10 backdrop-blur-sm border-y border-white/10 overflow-hidden">
         <div className="flex whitespace-nowrap" style={{ animation: "m 30s linear infinite" }}>
@@ -168,11 +209,12 @@ export default function Home() {
       {/* ─── FLEET ─── */}
       <section id="fleet" className="relative z-10 py-20 bg-black/60 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-5">
+          <Reveal>
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-5xl font-black text-white">Choose Your Ride</h2>
               <p className="text-white/40 text-sm mt-1">50+ cars · From RM 110/day</p>
             </div>
-          
+          </Reveal>
           <motion.div variants={container} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-40px" }}
             className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {CARS.map((car) => (
@@ -199,12 +241,13 @@ export default function Home() {
       {/* ─── 8 REASONS ─── */}
       <section className="relative z-10 py-20 bg-black/50 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-5">
+          <Reveal>
             <div className="text-center mb-12">
               <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">Built Different</p>
               <h2 className="text-3xl md:text-5xl font-black text-white">Eight Reasons We're Built Different</h2>
               <p className="text-white/40 text-sm mt-1 max-w-xl mx-auto">Local team in Seremban. Tight fleet. Honest pricing.</p>
             </div>
-          
+          </Reveal>
           <motion.div variants={container} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-40px" }}
             className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
@@ -231,11 +274,12 @@ export default function Home() {
       {/* ─── REVIEWS ─── */}
       <section className="relative z-10 py-20 bg-black/60 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-5">
+          <Reveal>
             <div className="text-center mb-12">
               <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">Testimonials</p>
               <h2 className="text-3xl md:text-5xl font-black text-white">What Our Clients Say</h2>
             </div>
-          
+          </Reveal>
           <motion.div variants={container} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-40px" }}
             className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
@@ -258,11 +302,12 @@ export default function Home() {
       {/* ─── FAQ ─── */}
       <section className="relative z-10 py-20 bg-black/50 backdrop-blur-sm">
         <div className="max-w-3xl mx-auto px-5">
+          <Reveal>
             <div className="text-center mb-12">
               <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">Questions?</p>
               <h2 className="text-3xl md:text-5xl font-black text-white">FAQ</h2>
             </div>
-          
+          </Reveal>
           <div className="space-y-2">
             {[
               { q: "What documents do I need?", a: "Valid license, IC/passport, recent utility bill." },
@@ -285,20 +330,19 @@ export default function Home() {
       {/* ─── CTA ─── */}
       <section className="relative z-10 bg-[#FF4500] py-16">
         <div className="max-w-3xl mx-auto px-5 text-center">
-            <h2 className="text-3xl md:text-5xl font-black text-white mb-3">Ready To Hit The Road?</h2>
-            <p className="text-white/70 text-sm max-w-md mx-auto mb-8">Reply in minutes. Zero paperwork. Be on the road within the hour.</p>
-            <div className="flex flex-col sm:flex-row justify-center gap-3">
-              <a href="https://wa.me/60126565477" target="_blank"
-                className="bg-black text-white font-bold px-8 py-3.5 rounded-xl text-sm hover:brightness-110 active:scale-[0.97] transition-all">Book via WhatsApp</a>
-              <a href="tel:+60126565477"
-                className="border-2 border-white/20 text-white font-semibold px-8 py-3.5 rounded-xl text-sm hover:bg-white/10 active:scale-[0.97] transition-all">Call +60 12-656 5477</a>
-            </div>
-          
+          <h2 className="text-3xl md:text-5xl font-black text-white mb-3">Ready To Hit The Road?</h2>
+          <p className="text-white/70 text-sm max-w-md mx-auto mb-8">Reply in minutes. Zero paperwork. Be on the road within the hour.</p>
+          <div className="flex flex-col sm:flex-row justify-center gap-3">
+            <a href="https://wa.me/60126565477" target="_blank"
+              className="bg-black text-white font-bold px-8 py-3.5 rounded-xl text-sm hover:brightness-110 active:scale-[0.97] transition-all">Book via WhatsApp</a>
+            <a href="tel:+60126565477"
+              className="border-2 border-white/20 text-white font-semibold px-8 py-3.5 rounded-xl text-sm hover:bg-white/10 active:scale-[0.97] transition-all">Call +60 12-656 5477</a>
+          </div>
         </div>
       </section>
 
       {/* ─── FOOTER ─── */}
-      <footer className="bg-black/90 py-10 text-center border-t border-white/5">
+      <footer className="relative z-10 bg-black/90 py-10 text-center border-t border-white/5">
         <div className="max-w-5xl mx-auto px-5">
           <div className="flex items-center justify-center gap-2 mb-4">
             <div className="w-8 h-8 bg-[#FF4500] flex items-center justify-center font-black text-white text-xs rounded-lg">JRV</div>

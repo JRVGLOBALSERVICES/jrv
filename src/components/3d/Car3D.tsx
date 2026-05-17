@@ -1,52 +1,84 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Float, Environment, ContactShadows, useGLTF, Center } from "@react-three/drei";
 import * as THREE from "three";
 
-// ─── MODEL LOADER ────────────────────────────────────
-function X50Model() {
-  const { scene } = useGLTF("/models/proton-x50.glb");
-
-  // Modify materials immediately (runs during render phase)
-  scene.traverse((child) => {
-    if (!(child instanceof THREE.Mesh)) return;
-    child.castShadow = true;
-    child.receiveShadow = true;
-
-    const mat = child.material as THREE.MeshStandardMaterial;
-    if (mat && mat.name === "00 - BODY") {
-      mat.color.set("#FF4500");
-      mat.metalness = 0.6;
-      mat.roughness = 0.3;
-    }
-  });
-
+// ─── TEST CUBE (debug) ──────────────────────────────
+function TestCube() {
   return (
-    <Center>
-      <primitive object={scene} scale={0.6} position={[0, -0.1, 0]} />
-    </Center>
+    <mesh position={[0, 0, 0]}>
+      <boxGeometry args={[0.5, 0.5, 0.5]} />
+      <meshStandardMaterial color="#FF4500" />
+    </mesh>
   );
 }
 
-// ─── CAMERA MANAGER ─────────────────────────────────
+// ─── MODEL LOADER ────────────────────────────────────
+function X50Model() {
+  const { scene } = useGLTF("/models/proton-x50.glb");
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    scene.traverse((child) => {
+      if (!(child instanceof THREE.Mesh)) return;
+      child.castShadow = true;
+      child.receiveShadow = true;
+
+      const mat = child.material as THREE.MeshStandardMaterial;
+      if (mat && mat.name === "00 - BODY") {
+        mat.color.set("#FF4500");
+        mat.metalness = 0.6;
+        mat.roughness = 0.3;
+      }
+    });
+    setReady(true);
+  }, [scene]);
+
+  return (
+    <group>
+      {ready && (
+        <Center>
+          <primitive object={scene} scale={0.6} position={[0, -0.1, 0]} />
+        </Center>
+      )}
+      {/* Debug cube always visible */}
+      <TestCube />
+    </group>
+  );
+}
+
+// ─── CAMERA ─────────────────────────────────────────
 function CameraManager() {
   const { camera, size } = useThree();
 
   useEffect(() => {
     const cam = camera as THREE.PerspectiveCamera;
     const isMobile = size.width < 600;
-
-    cam.position.set(isMobile ? 5 : 4.5, isMobile ? 2 : 2.5, isMobile ? 8 : 6);
-    cam.fov = isMobile ? 50 : 40;
+    cam.position.set(isMobile ? 6 : 4.5, isMobile ? 2.5 : 2.5, isMobile ? 10 : 6);
+    cam.far = 100;
+    cam.near = 0.1;
+    cam.fov = isMobile ? 55 : 40;
     cam.updateProjectionMatrix();
   }, [camera, size.width]);
 
   return null;
 }
 
-// ─── SCROLL + MOUSE REACTIVE SCENE ──────────────────
+// ─── LIGHTS ─────────────────────────────────────────
+function Lights() {
+  return (
+    <>
+      <ambientLight intensity={0.8} />
+      <directionalLight position={[5, 8, 5]} intensity={2} />
+      <directionalLight position={[-3, 5, -3]} intensity={0.6} color="#FF4500" />
+      <pointLight position={[0, 3, 2]} intensity={0.4} color="#FF4500" />
+    </>
+  );
+}
+
+// ─── SCENE ──────────────────────────────────────────
 function Scene({ scrollProgress }: { scrollProgress: number }) {
   const mesh = useRef<THREE.Group>(null);
   const mouse = useRef({ x: 0, y: 0 });
@@ -86,10 +118,7 @@ function Scene({ scrollProgress }: { scrollProgress: number }) {
   return (
     <>
       <CameraManager />
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[5, 8, 5]} intensity={1.8} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
-      <directionalLight position={[-3, 5, -3]} intensity={0.6} color="#FF4500" />
-      <pointLight position={[0, 3, 2]} intensity={0.4} color="#FF4500" />
+      <Lights />
 
       <group ref={mesh}>
         <Float speed={1.2} rotationIntensity={0.08} floatIntensity={0.25}>
@@ -105,11 +134,10 @@ function Scene({ scrollProgress }: { scrollProgress: number }) {
 
 useGLTF.preload("/models/proton-x50.glb");
 
-// ─── EXPORTED CANVAS ─────────────────────────────────
 export default function Car3D({ progress = 0 }: { progress?: number }) {
   return (
     <div className="w-full h-full">
-      <Canvas dpr={[1, 1.5]} gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}>
+      <Canvas dpr={[1, 1.5]} gl={{ antialias: true, alpha: false }}>
         <Scene scrollProgress={progress} />
       </Canvas>
     </div>

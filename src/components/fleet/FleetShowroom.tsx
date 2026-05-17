@@ -32,12 +32,13 @@ FLEET.forEach((c) => { if (c.model) useGLTF.preload(c.model); });
 function CarView({ modelPath }: { modelPath: string }) {
   const { scene } = useGLTF(modelPath);
   const group = useRef<THREE.Group>(null);
+  const scaleRef = useRef(1);
 
   useFrame((_, delta) => {
     if (group.current) group.current.rotation.y += delta * 0.5;
   });
 
-  // Clone once with material tweaks
+  // Clone once and compute auto-scale
   const cloneRef = useRef<THREE.Group | null>(null);
   if (!cloneRef.current) {
     cloneRef.current = scene.clone() as THREE.Group;
@@ -46,16 +47,21 @@ function CarView({ modelPath }: { modelPath: string }) {
       child.castShadow = true;
       child.receiveShadow = true;
     });
+    // Compute scale so longest axis = 2.5 units
+    const box = new THREE.Box3().setFromObject(cloneRef.current);
+    const size = new THREE.Vector3();
+    box.getSize(size);
+    const maxDim = Math.max(size.x, size.y, size.z);
+    scaleRef.current = maxDim > 0 ? 2.5 / maxDim : 1;
   }
 
   return (
     <Center>
       <group ref={group}>
-        <primitive object={cloneRef.current} scale={0.5} />
+        <primitive object={cloneRef.current} scale={scaleRef.current} />
       </group>
     </Center>
   );
-}
 
 // ─── SCENE ──────────────────────────────────────────
 function Scene({ modelPath }: { modelPath: string }) {
@@ -65,7 +71,7 @@ function Scene({ modelPath }: { modelPath: string }) {
       <directionalLight position={[5, 8, 5]} intensity={2} />
       <directionalLight position={[-3, 5, -3]} intensity={0.5} />
       <CarView modelPath={modelPath} />
-      <ContactShadows position={[0, -0.3, 0]} opacity={0.4} scale={4} blur={2} />
+      <ContactShadows position={[0, -0.5, 0]} opacity={0.5} scale={6} blur={2} far={1} />
       <Environment preset="studio" />
     </>
   );
@@ -91,7 +97,7 @@ export default function FleetShowroom() {
           {/* 3D Canvas */}
           <div className="w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden bg-gradient-to-b from-black/80 to-black/40 border border-white/10">
             {car.model ? (
-              <Canvas camera={{ position: [3, 1.5, 4], fov: 35 }} dpr={[1, 1.5]}>
+              <Canvas camera={{ position: [2.5, 1.5, 3.5], fov: 35 }} dpr={[1, 1.5]}>
                 <Scene modelPath={car.model} />
               </Canvas>
             ) : (

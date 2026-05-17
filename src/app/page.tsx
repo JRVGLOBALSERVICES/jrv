@@ -168,12 +168,11 @@ export default function Home() {
       {/* ─── FLEET ─── */}
       <section id="fleet" className="relative py-20 bg-black/60 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-5">
-          <Reveal>
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-5xl font-black text-white">Choose Your Ride</h2>
               <p className="text-white/40 text-sm mt-1">50+ cars · From RM 110/day</p>
             </div>
-          </Reveal>
+          
           <motion.div variants={container} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-40px" }}
             className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {CARS.map((car) => (
@@ -200,13 +199,12 @@ export default function Home() {
       {/* ─── 8 REASONS ─── */}
       <section className="relative py-20 bg-black/50 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-5">
-          <Reveal>
             <div className="text-center mb-12">
               <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">Built Different</p>
               <h2 className="text-3xl md:text-5xl font-black text-white">Eight Reasons We're Built Different</h2>
               <p className="text-white/40 text-sm mt-1 max-w-xl mx-auto">Local team in Seremban. Tight fleet. Honest pricing.</p>
             </div>
-          </Reveal>
+          
           <motion.div variants={container} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-40px" }}
             className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
@@ -233,12 +231,11 @@ export default function Home() {
       {/* ─── REVIEWS ─── */}
       <section className="relative py-20 bg-black/60 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-5">
-          <Reveal>
             <div className="text-center mb-12">
               <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">Testimonials</p>
               <h2 className="text-3xl md:text-5xl font-black text-white">What Our Clients Say</h2>
             </div>
-          </Reveal>
+          
           <motion.div variants={container} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-40px" }}
             className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
@@ -261,12 +258,11 @@ export default function Home() {
       {/* ─── FAQ ─── */}
       <section className="relative py-20 bg-black/50 backdrop-blur-sm">
         <div className="max-w-3xl mx-auto px-5">
-          <Reveal>
             <div className="text-center mb-12">
               <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">Questions?</p>
               <h2 className="text-3xl md:text-5xl font-black text-white">FAQ</h2>
             </div>
-          </Reveal>
+          
           <div className="space-y-2">
             {[
               { q: "What documents do I need?", a: "Valid license, IC/passport, recent utility bill." },
@@ -289,7 +285,6 @@ export default function Home() {
       {/* ─── CTA ─── */}
       <section className="bg-[#FF4500] py-16">
         <div className="max-w-3xl mx-auto px-5 text-center">
-          <Reveal>
             <h2 className="text-3xl md:text-5xl font-black text-white mb-3">Ready To Hit The Road?</h2>
             <p className="text-white/70 text-sm max-w-md mx-auto mb-8">Reply in minutes. Zero paperwork. Be on the road within the hour.</p>
             <div className="flex flex-col sm:flex-row justify-center gap-3">
@@ -298,7 +293,7 @@ export default function Home() {
               <a href="tel:+60126565477"
                 className="border-2 border-white/20 text-white font-semibold px-8 py-3.5 rounded-xl text-sm hover:bg-white/10 active:scale-[0.97] transition-all">Call +60 12-656 5477</a>
             </div>
-          </Reveal>
+          
         </div>
       </section>
 

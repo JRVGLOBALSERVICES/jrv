@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Float, Environment, ContactShadows, Center } from "@react-three/drei";
 import * as THREE from "three";
@@ -8,6 +8,9 @@ import * as THREE from "three";
 // Module-level cache — loaded once outside React/Canvas
 let cachedScene: THREE.Group | null = null;
 let loadingStarted = false;
+
+// Track subscribers for re-render when model loads
+let subs: Array<() => void> = [];
 
 function startLoading() {
   if (loadingStarted || cachedScene) return;
@@ -30,6 +33,8 @@ function startLoading() {
             }
           });
           cachedScene = gltf.scene;
+          // Notify all subscribers to re-render
+          subs.forEach(fn => fn());
         },
         undefined,
         (err: any) => console.error("X50 load failed:", err)
@@ -40,6 +45,18 @@ function startLoading() {
 
 // Start loading immediately (outside component lifecycle)
 if (typeof window !== "undefined") startLoading();
+
+// Hook to access scene with reactive updates
+function useCarScene() {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (cachedScene) return; // already loaded
+    const fn = () => setTick(t => t + 1);
+    subs.push(fn);
+    return () => { subs = subs.filter(f => f !== fn); };
+  }, []);
+  return cachedScene;
+}
 
 // ─── CAMERA ─────────────────────────────────────────
 function CameraManager() {
@@ -60,9 +77,10 @@ function CameraManager() {
 
 // ─── MODEL ──────────────────────────────────────────
 function X50Model() {
+  const scene = useCarScene();
   const cloneRef = useRef<THREE.Group | null>(null);
 
-  if (!cachedScene) {
+  if (!scene) {
     return (
       <mesh position={[0, 0, 0]}>
         <boxGeometry args={[0.5, 0.5, 0.5]} />
@@ -72,7 +90,7 @@ function X50Model() {
   }
 
   if (!cloneRef.current) {
-    cloneRef.current = cachedScene.clone() as THREE.Group;
+    cloneRef.current = scene.clone() as THREE.Group;
   }
 
   return (
@@ -141,7 +159,7 @@ function Scene({ scrollProgress }: { scrollProgress: number }) {
 export default function Car3D({ progress = 0 }: { progress?: number }) {
   return (
     <div className="w-full h-full" style={{ minHeight: "100%" }}>
-      <Canvas dpr={[1, 1.5]} gl={{ antialias: true, alpha: false }}>
+      <Canvas dpr={[1, 1.5]} gl={{ antialias: true, alpha: false, preserveDrawingBuffer: true }}>
         <Scene scrollProgress={progress} />
       </Canvas>
     </div>

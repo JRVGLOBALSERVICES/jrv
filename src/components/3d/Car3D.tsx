@@ -40,23 +40,19 @@ function X50Model() {
 
 // ─── ADAPTIVE CAMERA ─────────────────────────────────
 function AdaptiveCamera() {
-  const { camera, viewport } = useThree();
+  const { camera, size } = useThree();
 
   useEffect(() => {
-    const aspect = viewport.width / viewport.height;
-    const isMobile = viewport.width < 600;
-
+    const isMobile = size.width < 600;
     if (isMobile) {
-      // On mobile: pull camera back more, keep the car centered
       camera.position.set(4, 1.8, 7);
       (camera as THREE.PerspectiveCamera).fov = 45;
     } else {
-      // Desktop
       camera.position.set(4.5, 2.5, 6);
       (camera as THREE.PerspectiveCamera).fov = 40;
     }
     camera.updateProjectionMatrix();
-  }, [camera, viewport.width, viewport.height]);
+  }, [camera, size.width]);
 
   return null;
 }

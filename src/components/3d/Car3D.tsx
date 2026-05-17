@@ -1,14 +1,14 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Float, Environment, ContactShadows, useGLTF, Center } from "@react-three/drei";
 import * as THREE from "three";
 
 // ─── MODEL LOADER ────────────────────────────────────
 function X50Model() {
-  const group = useRef<THREE.Group>(null);
   const { scene } = useGLTF("/models/proton-x50.glb");
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     if (!scene) return;
@@ -27,31 +27,35 @@ function X50Model() {
         mat.roughness = 0.3;
       }
     });
+
+    setReady(true);
   }, [scene]);
 
+  if (!ready) return null;
+
   return (
-    <group ref={group}>
-      <Center>
-        <primitive object={scene.clone()} scale={0.6} position={[0, -0.1, 0]} />
-      </Center>
-    </group>
+    <Center>
+      <primitive object={scene} scale={0.6} position={[0, -0.1, 0]} />
+    </Center>
   );
 }
 
-// ─── ADAPTIVE CAMERA ─────────────────────────────────
-function AdaptiveCamera() {
+// ─── CAMERA MANAGER ─────────────────────────────────
+function CameraManager() {
   const { camera, size } = useThree();
 
   useEffect(() => {
     const isMobile = size.width < 600;
+    const cam = camera as THREE.PerspectiveCamera;
+
     if (isMobile) {
-      camera.position.set(4, 1.8, 7);
-      (camera as THREE.PerspectiveCamera).fov = 45;
+      cam.position.set(4, 1.8, 7);
+      cam.fov = 45;
     } else {
-      camera.position.set(4.5, 2.5, 6);
-      (camera as THREE.PerspectiveCamera).fov = 40;
+      cam.position.set(4.5, 2.5, 6);
+      cam.fov = 40;
     }
-    camera.updateProjectionMatrix();
+    cam.updateProjectionMatrix();
   }, [camera, size.width]);
 
   return null;
@@ -61,7 +65,7 @@ function AdaptiveCamera() {
 function Scene({ scrollProgress }: { scrollProgress: number }) {
   const mesh = useRef<THREE.Group>(null);
   const mouse = useRef({ x: 0, y: 0 });
-  const target = useRef({ rotY: 0, rotX: 0, tiltX: 0, tiltY: 0 });
+  const target = useRef({ rotY: 0, tiltX: 0, tiltY: 0 });
 
   useEffect(() => {
     const onMove = (e: MouseEvent | TouchEvent) => {
@@ -97,7 +101,7 @@ function Scene({ scrollProgress }: { scrollProgress: number }) {
 
   return (
     <>
-      <AdaptiveCamera />
+      <CameraManager />
       <ambientLight intensity={0.5} />
       <directionalLight position={[5, 8, 5]} intensity={1.8} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
       <directionalLight position={[-3, 5, -3]} intensity={0.6} color="#FF4500" />

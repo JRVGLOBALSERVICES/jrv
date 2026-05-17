@@ -1,12 +1,14 @@
 "use client";
 
-import { useRef, useMemo, useEffect } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Float, Environment, ContactShadows } from "@react-three/drei";
+import { useRef, useMemo } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Float, Environment, ContactShadows, MeshTransmissionMaterial } from "@react-three/drei";
 import * as THREE from "three";
 
 // ─── SIMPLE 3D CAR MODEL ────────────────────────────
 function CarBody() {
+  const group = useRef<THREE.Group>(null);
+
   const bodyMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: "#FF4500",
     metalness: 0.7,
@@ -35,34 +37,42 @@ function CarBody() {
   }), []);
 
   return (
-    <group>
+    <group ref={group}>
       {/* Main body */}
       <mesh position={[0, 0.35, 0]} material={bodyMat}>
         <boxGeometry args={[1.6, 0.4, 3.2]} />
       </mesh>
+
+      {/* Crankcase / lower body */}
       <mesh position={[0, 0.15, 0]} material={bodyMat}>
         <boxGeometry args={[1.4, 0.2, 2.8]} />
       </mesh>
+
       {/* Cabin */}
       <mesh position={[0, 0.7, -0.3]} material={glassMat}>
         <boxGeometry args={[1.4, 0.4, 1.6]} />
       </mesh>
-      {/* Windshield */}
+
+      {/* Front windshield */}
       <mesh position={[0, 0.65, 0.55]} rotation={[0.3, 0, 0]} material={glassMat}>
         <planeGeometry args={[1.3, 0.45]} />
       </mesh>
-      {/* Hood */}
+
+      {/* Hood line */}
       <mesh position={[0, 0.4, 1.3]} material={bodyMat}>
         <boxGeometry args={[1.3, 0.05, 0.8]} />
       </mesh>
-      {/* Trunk */}
+
+      {/* Trunk line */}
       <mesh position={[0, 0.42, -1.3]} material={bodyMat}>
         <boxGeometry args={[1.3, 0.05, 0.6]} />
       </mesh>
+
       {/* Spoiler */}
       <mesh position={[0, 0.65, -1.55]} material={bodyMat}>
         <boxGeometry args={[1.2, 0.04, 0.05]} />
       </mesh>
+
       {/* Headlights */}
       <mesh position={[0.35, 0.38, 1.62]} material={bodyMat}>
         <sphereGeometry args={[0.08, 8, 8]} />
@@ -70,6 +80,7 @@ function CarBody() {
       <mesh position={[-0.35, 0.38, 1.62]} material={bodyMat}>
         <sphereGeometry args={[0.08, 8, 8]} />
       </mesh>
+
       {/* Taillights */}
       <mesh position={[0.45, 0.38, -1.62]}>
         <sphereGeometry args={[0.065, 8, 8]} />
@@ -79,6 +90,7 @@ function CarBody() {
         <sphereGeometry args={[0.065, 8, 8]} />
         <meshStandardMaterial color="#ff2200" emissive="#ff2200" emissiveIntensity={0.3} />
       </mesh>
+
       {/* Wheels */}
       {[
         [0.85, 0.15, 0.9],
@@ -87,14 +99,17 @@ function CarBody() {
         [-0.85, 0.15, -0.9],
       ].map((pos, i) => (
         <group key={i} position={pos as [number, number, number]}>
+          {/* Tire */}
           <mesh rotation={[0, 0, Math.PI / 2]} material={wheelMat}>
             <cylinderGeometry args={[0.18, 0.18, 0.12, 16]} />
           </mesh>
+          {/* Rim */}
           <mesh rotation={[0, 0, Math.PI / 2]} material={rimMat}>
             <cylinderGeometry args={[0.1, 0.1, 0.13, 8]} />
           </mesh>
         </group>
       ))}
+
       {/* Side mirrors */}
       <mesh position={[0.85, 0.55, 0.45]} material={bodyMat}>
         <boxGeometry args={[0.06, 0.08, 0.15]} />
@@ -106,18 +121,21 @@ function CarBody() {
   );
 }
 
-// ─── SCENE ──────────────────────────────────────────
+// ─── FLOATING SCENE ──────────────────────────────────
 function Scene({ scrollProgress }: { scrollProgress: number }) {
   const mesh = useRef<THREE.Group>(null);
 
   useFrame(() => {
     if (!mesh.current) return;
-    mesh.current.rotation.y = scrollProgress * Math.PI * 2;
-    mesh.current.rotation.x = Math.sin(scrollProgress * Math.PI) * 0.08;
+    // Rotate based on scroll
+    mesh.current.rotation.y = scrollProgress * Math.PI * 4;
+    // Slight tilt
+    mesh.current.rotation.x = Math.sin(scrollProgress * Math.PI) * 0.1;
   });
 
   return (
     <>
+      {/* Lighting */}
       <ambientLight intensity={0.4} />
       <directionalLight position={[5, 8, 5]} intensity={1.5} />
       <directionalLight position={[-3, 5, -3]} intensity={0.5} color="#FF4500" />

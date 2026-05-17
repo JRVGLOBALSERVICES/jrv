@@ -43,8 +43,8 @@ function X50Model({ onLoad }: { onLoad?: () => void }) {
       <Center>
         <primitive
           object={scene.clone()}
-          scale={1.8}
-          position={[0, -0.3, 0]}
+          scale={0.6}
+          position={[0, -0.1, 0]}
         />
       </Center>
     </group>
@@ -108,7 +108,7 @@ export default function Car3D({ progress = 0 }: { progress?: number }) {
   return (
     <div className="w-full h-full">
       <Canvas
-        camera={{ position: [3.5, 1.8, 4], fov: 30 }}
+        camera={{ position: [4.5, 2.5, 6], fov: 40 }}
         dpr={[1, 1.5]}
         gl={{ antialias: true, alpha: false }}
       >

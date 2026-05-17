@@ -52,7 +52,7 @@ function CarView({ modelPath }: { modelPath: string }) {
     const size = new THREE.Vector3();
     box.getSize(size);
     const maxDim = Math.max(size.x, size.y, size.z);
-    scaleRef.current = maxDim > 0 ? 2.5 / maxDim : 1;
+    scaleRef.current = maxDim > 0 ? 2.0 / maxDim : 1;
   }
 
   return (

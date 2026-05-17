@@ -137,6 +137,8 @@ function Scene({ scrollProgress, scene }: { scrollProgress: number; scene: THREE
 export default function Car3D({ progress = 0, scene }: Car3DProps) {
   return (
     <div className="w-full h-full">
+      {/* Debug dot: green when X50 loaded, red when procedural */}
+      <div style={{ position:'absolute', top:10, right:10, width:12, height:12, borderRadius:'50%', background: scene ? '#00ff00' : '#ff0000', zIndex:999 }} />
       <Canvas camera={{ position: [4, 2, 5.5], fov: 35 }}>
         <Scene scrollProgress={progress} scene={scene || null} />
       </Canvas>

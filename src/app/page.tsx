@@ -191,8 +191,8 @@ export default function Home() {
           </a>
           <div className="flex items-center gap-4">
             <a href="#fleet" className="text-white/60 hover:text-white text-[10px] font-semibold uppercase tracking-wider transition-colors">Fleet</a>
-            <a href="https://wa.me/60126565477" target="_blank"
-              className="bg-[#FF4500] text-white text-xs font-bold px-4 py-2 rounded-lg hover:brightness-110 active:scale-[0.97] transition-all">Book Now</a>
+            <button onClick={() => setBooking({ open: true })}
+              className="bg-[#FF4500] text-white text-xs font-bold px-4 py-2 rounded-lg hover:brightness-110 active:scale-[0.97] transition-all cursor-pointer">Book Now</button>
           </div>
         </div>
       </motion.nav>
@@ -210,8 +210,8 @@ export default function Home() {
           </h1>
           <p className="text-white/50 text-sm md:text-base max-w-md mx-auto mb-8" style={f(0.22)}>Premium cars · Honest prices · Free delivery Seremban</p>
           <div className="flex flex-col sm:flex-row justify-center gap-3" style={f(0.32)}>
-            <a href="https://wa.me/60126565477" target="_blank"
-              className="bg-[#FF4500] text-white font-bold px-8 py-3.5 rounded-xl text-sm hover:brightness-110 active:scale-[0.97] transition-all">Book on WhatsApp</a>
+            <button onClick={() => setBooking({ open: true })}
+              className="bg-[#FF4500] text-white font-bold px-8 py-3.5 rounded-xl text-sm hover:brightness-110 active:scale-[0.97] transition-all cursor-pointer">Book on WhatsApp</button>
             <a href="tel:+60126565477"
               className="border border-white/20 text-white font-semibold px-8 py-3.5 rounded-xl text-sm hover:bg-white/5 active:scale-[0.97] transition-all">Call +60 12-656 5477</a>
           </div>
@@ -265,7 +265,8 @@ export default function Home() {
                   <p className="text-white/40 text-[10px] mt-0.5">{car.s}</p>
                   <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-white/10">
                     <span className="text-[#FF4500] font-bold text-base">{car.p}<span className="text-white/20 text-[9px]">/day</span></span>
-                    <a href="https://wa.me/60126565477" className="text-white/50 group-hover:text-[#FF4500] text-[10px] font-bold uppercase tracking-wider transition-colors">Book</a>
+                    <button onClick={() => setBooking({ open: true, car: car.n })}
+                      className="text-white/50 group-hover:text-[#FF4500] text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer">Book</button>
                   </div>
                 </div>
               </motion.div>
@@ -371,8 +372,8 @@ export default function Home() {
           <h2 className="text-3xl md:text-5xl font-black text-white mb-3">Ready To Hit The Road?</h2>
           <p className="text-white/70 text-sm max-w-md mx-auto mb-8">Reply in minutes. Zero paperwork. Be on the road within the hour.</p>
           <div className="flex flex-col sm:flex-row justify-center gap-3">
-            <a href="https://wa.me/60126565477" target="_blank"
-              className="bg-black text-white font-bold px-8 py-3.5 rounded-xl text-sm hover:brightness-110 active:scale-[0.97] transition-all">Book via WhatsApp</a>
+            <button onClick={() => setBooking({ open: true })}
+              className="bg-black text-white font-bold px-8 py-3.5 rounded-xl text-sm hover:brightness-110 active:scale-[0.97] transition-all cursor-pointer">Book via WhatsApp</button>
             <a href="tel:+60126565477"
               className="border-2 border-white/20 text-white font-semibold px-8 py-3.5 rounded-xl text-sm hover:bg-white/10 active:scale-[0.97] transition-all">Call +60 12-656 5477</a>
           </div>

@@ -267,8 +267,12 @@ export default function Home() {
                   <p className="text-white/40 text-[10px] mt-0.5">{car.s}</p>
                   <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-white/10">
                     <span className="text-[#FF4500] font-bold text-base">{car.p}<span className="text-white/20 text-[9px]">/day</span></span>
-                    <button onClick={() => setBooking({ open: true, car: car.n })}
-                      className="text-white/50 group-hover:text-[#FF4500] text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer">Book</button>
+                    <div className="flex items-center gap-2.5">
+                      <a href={`/fleet/${car.n.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}`}
+                        className="text-white/40 hover:text-white text-[10px] font-bold uppercase tracking-wider transition-colors">View</a>
+                      <button onClick={() => setBooking({ open: true, car: car.n })}
+                        className="text-white/50 group-hover:text-[#FF4500] text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer">Book</button>
+                    </div>
                   </div>
                 </div>
               </motion.div>

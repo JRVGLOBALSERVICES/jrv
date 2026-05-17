@@ -5,7 +5,6 @@ import { motion, useInView } from "framer-motion";
 import dynamic from "next/dynamic";
 import BookingModal from "@/components/booking/BookingModal";
 import PricingCalculator from "@/components/PricingCalculator";
-import MapSection from "@/components/MapSection";
 import Globe from "@/components/Globe";
 
 const Car3D = dynamic(() => import("@/components/3d/Car3D"), { ssr: false });
@@ -372,7 +371,7 @@ export default function Home() {
       </section>
 
       {/* ─── GLOBE ─── */}
-      <section className="relative z-10 min-h-[500px] flex items-center justify-center overflow-hidden bg-black/80">
+      <section className="relative z-10 h-[380px] md:h-[450px] flex items-center justify-center overflow-hidden bg-black/80">
         <div className="absolute inset-0">
           <Globe />
         </div>
@@ -382,8 +381,6 @@ export default function Home() {
           <p className="text-white/40 text-sm mt-2 max-w-md mx-auto">Free delivery to KLIA, KL Sentral, and all of Seremban</p>
         </div>
       </section>
-
-      <MapSection />
 
       {/* ─── CTA ─── */}
       <section className="relative z-10 bg-[#FF4500] py-16">

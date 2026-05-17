@@ -132,7 +132,7 @@ export default function Globe() {
         }
       }}
     >
-      <Canvas camera={{ position: [0, 0.3, 2.8], fov: 35 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: false }}>
+      <Canvas camera={{ position: [0, 0.5, 5], fov: 30 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: false }}>
         <Scene spinning={spinning} onSpinDone={handleSpinDone} />
       </Canvas>
     </div>

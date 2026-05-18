@@ -104,6 +104,7 @@ const CARS = [
 
 // ─── 3D SHOWCASE SECTION ────────────────────────────
 function Showcase3D({ scene }: { scene?: any }) {
+  const { t } = useLang();
   const sectionRef = useRef<HTMLElement>(null);
   const [progress, setProgress] = useState(0);
 
@@ -132,9 +133,9 @@ function Showcase3D({ scene }: { scene?: any }) {
         <Car3D progress={progress} scene={scene} />
       </div>
       <div className="relative z-10 text-center px-5 max-w-xl">
-        <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">Interactive 3D</p>
-        <h2 className="text-3xl md:text-5xl font-black text-white mb-2">Explore in 3D</h2>
-        <p className="text-white/40 text-sm">Scroll to rotate · Built with Three.js</p>
+        <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">{t('showcase.badge')}</p>
+        <h2 className="text-3xl md:text-5xl font-black text-white mb-2">{t('showcase.title')}</h2>
+        <p className="text-white/40 text-sm">{t('showcase.subtitle')}</p>
       </div>
     </section>
   );
@@ -253,8 +254,8 @@ export default function Home() {
         <div className="max-w-5xl mx-auto px-5">
           <Reveal>
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-5xl font-black text-white">Choose Your Ride</h2>
-              <p className="text-white/40 text-sm mt-1">50+ cars · From RM 110/day</p>
+              <h2 className="text-3xl md:text-5xl font-black text-white">{t('fleet.title')}</h2>
+              <p className="text-white/40 text-sm mt-1">{t('fleet.subtitle')}</p>
             </div>
           </Reveal>
           <motion.div variants={container} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-40px" }}
@@ -270,12 +271,12 @@ export default function Home() {
                   <h3 className="font-bold text-white text-sm">{car.n}</h3>
                   <p className="text-white/40 text-[10px] mt-0.5">{car.s}</p>
                   <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-white/10">
-                    <span className="text-[#FF4500] font-bold text-base">{car.p}<span className="text-white/20 text-[9px]">/day</span></span>
+                    <span className="text-[#FF4500] font-bold text-base">{car.p}<span className="text-white/20 text-[9px]">{t('fleet.per_day')}</span></span>
                     <div className="flex items-center gap-2.5">
                       <a href={`/fleet/${car.n.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}`}
-                        className="text-white/40 hover:text-white text-[10px] font-bold uppercase tracking-wider transition-colors">View</a>
+                        className="text-white/40 hover:text-white text-[10px] font-bold uppercase tracking-wider transition-colors">{t('fleet.view')}</a>
                       <button onClick={() => setBooking({ open: true, car: car.n })}
-                        className="text-white/50 group-hover:text-[#FF4500] text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer">Book</button>
+                        className="text-white/50 group-hover:text-[#FF4500] text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer">{t('fleet.book')}</button>
                     </div>
                   </div>
                 </div>
@@ -292,28 +293,28 @@ export default function Home() {
         <div className="max-w-5xl mx-auto px-5">
           <Reveal>
             <div className="text-center mb-12">
-              <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">Built Different</p>
-              <h2 className="text-3xl md:text-5xl font-black text-white">Eight Reasons We're Built Different</h2>
-              <p className="text-white/40 text-sm mt-1 max-w-xl mx-auto">Local team in Seremban. Tight fleet. Honest pricing.</p>
+              <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">{t('reasons.badge')}</p>
+              <h2 className="text-3xl md:text-5xl font-black text-white">{t('reasons.title')}</h2>
+              <p className="text-white/40 text-sm mt-1 max-w-xl mx-auto">{t('reasons.subtitle')}</p>
             </div>
           </Reveal>
           <motion.div variants={container} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-40px" }}
             className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              { t: "Zero Deposit", d: "No security deposit needed." },
-              { t: "Free Delivery", d: "Complimentary within Seremban." },
-              { t: "Unlimited Mileage", d: "No distance limits." },
-              { t: "24/7 Service", d: "Round-the-clock support." },
-              { t: "Latest Models", d: "2024-2026 fleet." },
-              { t: "KLIA Pickup", d: "Meet & greet at both terminals." },
-              { t: "Best Rates", d: "From RM 110/day." },
-              { t: "Replacement", d: "If breakdown occurs." },
+              { k: "zero_deposit" },
+              { k: "free_delivery" },
+              { k: "unlimited_mileage" },
+              { k: "service" },
+              { k: "latest" },
+              { k: "klia" },
+              { k: "best_rates" },
+              { k: "replacement" },
             ].map((r) => (
-              <motion.div key={r.t} variants={item}
+              <motion.div key={r.k} variants={item}
                 className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 hover:border-[#FF4500]/30 transition-all duration-300"
               >
-                <h3 className="font-bold text-white text-sm">{r.t}</h3>
-                <p className="text-white/40 text-[11px] mt-1.5 leading-relaxed">{r.d}</p>
+                <h3 className="font-bold text-white text-sm">{t('reasons.' + r.k)}</h3>
+                <p className="text-white/40 text-[11px] mt-1.5 leading-relaxed">{t('reasons.' + r.k + '_desc')}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -327,7 +328,7 @@ export default function Home() {
         <div className="max-w-5xl mx-auto px-5">
           <Reveal>
             <div className="text-center mb-12">
-              <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">Testimonials</p>
+              <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">{t('reviews.badge')}</p>
               <h2 className="text-3xl md:text-5xl font-black text-white">What Our Clients Say</h2>
             </div>
           </Reveal>
@@ -355,23 +356,18 @@ export default function Home() {
         <div className="max-w-3xl mx-auto px-5">
           <Reveal>
             <div className="text-center mb-12">
-              <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">Questions?</p>
-              <h2 className="text-3xl md:text-5xl font-black text-white">FAQ</h2>
+              <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">{t('faq.title')}</p>
+              <h2 className="text-3xl md:text-5xl font-black text-white">{t('faq.title')}</h2>
             </div>
           </Reveal>
           <div className="space-y-2">
-            {[
-              { q: "What documents do I need?", a: "Valid license, IC/passport, recent utility bill." },
-              { q: "How much deposit?", a: "Zero deposit. Rare in the industry." },
-              { q: "Mileage limit?", a: "No. Unlimited on all rentals." },
-              { q: "Breakdown?", a: "24/7 roadside + replacement guaranteed." },
-            ].map((f, i) => (
+            {['q1','q2','q3','q4'].map((k, i) => (
               <details key={i} className="group border border-white/10 rounded-xl overflow-hidden bg-white/5 backdrop-blur-sm">
                 <summary className="px-5 py-3.5 cursor-pointer text-white font-semibold text-sm flex items-center justify-between list-none hover:bg-white/5 transition-colors">
                   <span>{f.q}</span>
                   <span className="text-[#FF4500] group-open:rotate-180 transition-transform text-xs shrink-0">▾</span>
                 </summary>
-                <div className="px-5 pb-3.5 text-white/50 text-xs leading-relaxed border-t border-white/5 pt-2.5">{f.a}</div>
+                <div className="px-5 pb-3.5 text-white/50 text-xs leading-relaxed border-t border-white/5 pt-2.5">{t('faq.' + k.replace('q', 'a'))}</div>
               </details>
             ))}
           </div>
@@ -384,9 +380,9 @@ export default function Home() {
           <Globe />
         </div>
         <div className="relative z-10 text-center px-5">
-          <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">Where We Serve</p>
-          <h2 className="text-3xl md:text-5xl font-black text-white">Seremban & Beyond</h2>
-          <p className="text-white/40 text-sm mt-2 max-w-md mx-auto">Free delivery to KLIA, KL Sentral, and all of Seremban</p>
+          <p className="text-[#FF4500] text-[10px] font-bold tracking-[0.25em] uppercase mb-2">{t('globe.badge')}</p>
+          <h2 className="text-3xl md:text-5xl font-black text-white">{t('globe.title')}</h2>
+          <p className="text-white/40 text-sm mt-2 max-w-md mx-auto">{t('globe.subtitle')}</p>
         </div>
       </section>
 
@@ -409,13 +405,13 @@ export default function Home() {
         <div className="max-w-5xl mx-auto px-5">
           <div className="flex items-center justify-center gap-2 mb-4">
             <div className="w-8 h-8 bg-[#FF4500] flex items-center justify-center font-black text-white text-xs rounded-lg">JRV</div>
-            <span className="text-white font-bold text-sm">JRV Car Rental</span>
+            <span className="text-white font-bold text-sm">{t('nav.brand')}</span>
           </div>
-          <p className="text-white/30 text-xs mb-1">51, Jln S2 B18, Seremban 2 · 24 hours · 7 days</p>
+          <p className="text-white/30 text-xs mb-1">{t('footer.address')}</p>
           <div className="flex justify-center gap-5 my-4">
-            <a href="https://wa.me/60126565477" className="text-white/40 hover:text-[#FF4500] text-xs transition-colors">WhatsApp</a>
-            <a href="tel:+60126565477" className="text-white/40 hover:text-[#FF4500] text-xs transition-colors">Call</a>
-            <a href="https://jrvservices.co" className="text-white/40 hover:text-[#FF4500] text-xs transition-colors">Website</a>
+            <a href="https://wa.me/60126565477" className="text-white/40 hover:text-[#FF4500] text-xs transition-colors">{t('footer.whatsapp')}</a>
+            <a href="tel:+60126565477" className="text-white/40 hover:text-[#FF4500] text-xs transition-colors">{t('footer.call')}</a>
+            <a href="https://jrvservices.co" className="text-white/40 hover:text-[#FF4500] text-xs transition-colors">{t('footer.website')}</a>
           </div>
           <p className="text-white/40 text-[11px]">© 2026 JRV Rental Services. Powered by <a href="https://jrvsystems.app" className="text-[#FF4500] hover:underline">JRV Systems</a></p>
         </div>

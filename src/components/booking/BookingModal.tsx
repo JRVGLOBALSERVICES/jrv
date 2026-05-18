@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useLang } from "@/i18n/provider";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 const WHATSAPP = "60126565477";
@@ -19,6 +20,7 @@ interface BookingModalProps {
 }
 
 export default function BookingModal({ open, preselectedCar, onClose }: BookingModalProps) {
+  const { t } = useLang();
   const [car, setCar] = useState(preselectedCar || "");
   const [pickupDate, setPickupDate] = useState("");
   const [returnDate, setReturnDate] = useState("");
@@ -96,12 +98,12 @@ export default function BookingModal({ open, preselectedCar, onClose }: BookingM
           {/* Dates */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-white/50 text-[10px] font-semibold uppercase tracking-widest block mb-1">Pickup Date</label>
+              <label className="text-white/50 text-[10px] font-semibold uppercase tracking-widest block mb-1">{t('booking.pickup')}</label>
               <input type="date" value={pickupDate} onChange={(e) => setPickupDate(e.target.value)} min={today} required
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#FF4500] transition-colors [color-scheme:dark]" />
             </div>
             <div>
-              <label className="text-white/50 text-[10px] font-semibold uppercase tracking-widest block mb-1">Return Date</label>
+              <label className="text-white/50 text-[10px] font-semibold uppercase tracking-widest block mb-1">{t('booking.return')}</label>
               <input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} min={pickupDate || today} required
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#FF4500] transition-colors [color-scheme:dark]" />
             </div>
@@ -109,7 +111,7 @@ export default function BookingModal({ open, preselectedCar, onClose }: BookingM
 
           {/* Location */}
           <div>
-            <label className="text-white/50 text-[10px] font-semibold uppercase tracking-widest block mb-1">Pickup Location</label>
+            <label className="text-white/50 text-[10px] font-semibold uppercase tracking-widest block mb-1">{t('booking.location')}</label>
             <select value={location} onChange={(e) => setLocation(e.target.value)}
               className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#FF4500] transition-colors appearance-none">
               <option value="Seremban">Seremban</option>
@@ -122,12 +124,12 @@ export default function BookingModal({ open, preselectedCar, onClose }: BookingM
           {/* Personal Info */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-white/50 text-[10px] font-semibold uppercase tracking-widest block mb-1">Your Name</label>
+              <label className="text-white/50 text-[10px] font-semibold uppercase tracking-widest block mb-1">{t('booking.name')}</label>
               <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Ali" required
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[#FF4500] transition-colors" />
             </div>
             <div>
-              <label className="text-white/50 text-[10px] font-semibold uppercase tracking-widest block mb-1">Phone</label>
+              <label className="text-white/50 text-[10px] font-semibold uppercase tracking-widest block mb-1">{t('booking.phone')}</label>
               <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="e.g. 012-345 6789" required
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[#FF4500] transition-colors" />
             </div>

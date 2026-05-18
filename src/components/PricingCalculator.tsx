@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLang } from "@/i18n/provider";
 
 const CARS = [
   { n: "Perodua Axia G1", p: 110 },
@@ -21,6 +22,7 @@ function daysBetween(a: Date, b: Date) {
 }
 
 export default function PricingCalculator() {
+  const { t } = useLang();
   const [car, setCar] = useState(CARS[0].n);
   const [pickup, setPickup] = useState("");
   const [ret, setRet] = useState("");
@@ -53,7 +55,7 @@ export default function PricingCalculator() {
             <label className="text-white/50 text-[10px] font-semibold uppercase tracking-widest block mb-1.5">Car Model</label>
             <select value={car} onChange={(e) => setCar(e.target.value)}
               className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#FF4500] transition-colors appearance-none">
-              {CARS.map((c) => <option key={c.n} value={c.n}>{c.n} — RM {c.p}/day</option>)}
+              {CARS.map((c) => <option key={c.n} value={c.n}>{c.n} — RM {c.p}/{t('pricing.day')}</option>)}
             </select>
           </div>
 
@@ -85,7 +87,7 @@ export default function PricingCalculator() {
             <label className="flex items-center gap-3 text-white/60 text-sm cursor-pointer">
               <input type="checkbox" checked={extraDelivery} onChange={(e) => setExtraDelivery(e.target.checked)}
                 className="w-4 h-4 accent-[#FF4500]" />
-              Include delivery to {location} (+RM 50)
+              {t('pricing.delivery')} {location} (+RM 50)
             </label>
           )}
 
@@ -105,16 +107,16 @@ export default function PricingCalculator() {
               </div>
             )}
             <div className="flex justify-between text-lg font-bold pt-2 border-t border-white/10">
-              <span className="text-white">Total</span>
+              <span className="text-white">{t('pricing.total')}</span>
               <span className="text-[#FF4500]">RM {days > 0 ? total : "—"}</span>
             </div>
             {days === 0 && pickup && ret && (
-              <p className="text-white/30 text-[10px] text-center">Return date must be after pickup date</p>
+              <p className="text-white/30 text-[10px] text-center">{t('pricing.return_error')}</p>
             )}
           </div>
         </div>
 
-        <p className="text-white/20 text-[10px] text-center mt-4">Prices shown exclude旺季 surcharges. Final quote confirmed via WhatsApp.</p>
+        <p className="text-white/20 text-[10px] text-center mt-4">{t('pricing.note')}</p>
       </div>
     </section>
   );

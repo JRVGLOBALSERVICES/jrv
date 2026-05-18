@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useLang } from "@/i18n/provider";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Float, Environment, ContactShadows, useGLTF, Center } from "@react-three/drei";
 import * as THREE from "three";
@@ -80,6 +81,7 @@ function Scene({ modelPath }: { modelPath: string }) {
 
 // ─── EXPORTED COMPONENT ─────────────────────────────
 export default function FleetShowroom({ onBook }: { onBook?: (car: string) => void }) {
+  const { t } = useLang();
   const [index, setIndex] = useState(0);
   const car = FLEET[index];
 
@@ -115,12 +117,12 @@ export default function FleetShowroom({ onBook }: { onBook?: (car: string) => vo
               <p className="text-white/40 text-xs">{car.type}</p>
             </div>
             <div className="text-right">
-              <span className="text-[#FF4500] font-bold text-xl">{car.price}<span className="text-white/20 text-xs">/day</span></span>
+              <span className="text-[#FF4500] font-bold text-xl">{car.price}<span className="text-white/20 text-xs">{t('fleet.per_day')}</span></span>
               <button
                 onClick={() => onBook?.(car.name)}
                 className="block mt-1 text-[10px] text-white/50 hover:text-[#FF4500] font-bold uppercase tracking-wider transition-colors"
               >
-                Book Now
+                {t('showroom.book')}
               </button>
             </div>
           </div>

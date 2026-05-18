@@ -222,11 +222,12 @@ export default function Home() {
         </div>
       </motion.nav>
       <div style={{ height: 56 }} />
+      <div style={{ height: "calc(100vh - 56px)" }} />
 
       <Scrubber onProg={hp} />
 
       {/* ─── HERO ─── */}
-      <section className="relative z-10 min-h-[70vh] flex items-center justify-center">
+      <section className="relative z-10 min-h-screen flex items-start justify-center pt-20 md:pt-32">
         <div className="text-center px-5 max-w-3xl mx-auto">
           <p className="text-[#FF4500] text-xs font-bold tracking-[0.25em] uppercase mb-4" style={f(0.05)}>Sewa Lama Lagi Murah</p>
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white leading-[0.88] mb-4" style={f(0.12)}>

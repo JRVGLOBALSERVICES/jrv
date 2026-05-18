@@ -227,7 +227,7 @@ export default function Home() {
       <Scrubber onProg={hp} />
 
       {/* ─── HERO ─── */}
-      <section className="relative z-10 min-h-screen flex items-start justify-center pt-20 md:pt-32">
+      <section className="relative z-10 min-h-screen flex flex-col items-center pt-32 md:pt-48">
         <div className="text-center px-5 max-w-3xl mx-auto">
           <p className="text-[#FF4500] text-xs font-bold tracking-[0.25em] uppercase mb-4" style={f(0.05)}>Sewa Lama Lagi Murah</p>
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white leading-[0.88] mb-4" style={f(0.12)}>

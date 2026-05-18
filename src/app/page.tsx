@@ -12,7 +12,7 @@ import LangSwitch from "@/components/LangSwitch";
 const Car3D = dynamic(() => import("@/components/3d/Car3D"), { ssr: false });
 const FleetShowroom = dynamic(() => import("@/components/fleet/FleetShowroom"), { ssr: false });
 
-const FRAMES = 15;
+const FRAMES = 30;
 const fSrc = (i: number) => `/frames/frame_${String(i + 1).padStart(4, "0")}.jpg`;
 const ease = [0.23, 1, 0.32, 1] as const;
 

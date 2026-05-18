@@ -19,58 +19,76 @@ const ease = [0.23, 1, 0.32, 1] as const;
 // ─── VIDEO FRAME SCRUBBER ───────────────────────────
 function Scrubber({ onProg }: { onProg: (n: number) => void }) {
   const c = useRef<HTMLCanvasElement>(null);
-  const imgs = useRef<HTMLImageElement[]>([]);
-  const [ok, setOk] = useState(false);
+  const imgs = useRef<(HTMLImageElement | null)[]>([]);
   const cur = useRef(-1);
+  const size = useRef({ w: 0, h: 0 });
+  const loaded = useRef(0);
+  const [showFirst, setShowFirst] = useState(false);
 
+  // Lazy preloader: loads frames one at a time, shows first immediately
   useEffect(() => {
-    const a: HTMLImageElement[] = [];
-    let n = 0;
-    for (let i = 0; i < FRAMES; i++) {
+    const load = (i: number) => {
+      if (i >= FRAMES || imgs.current[i]) return;
       const img = new Image();
-      img.onload = img.onerror = () => { n++; if (n === FRAMES) { imgs.current = a; setOk(true); } };
-      img.src = fSrc(i); a.push(img);
-    }
-    return () => a.forEach((i) => { i.src = ""; });
+      img.onload = img.onerror = () => {
+        if (i === 0) { setShowFirst(true); }
+        loaded.current++;
+        load(i + 1);
+      };
+      img.src = fSrc(i);
+      imgs.current[i] = img;
+    };
+    load(0);
+    return () => { imgs.current.forEach((img) => { if (img) img.src = ""; }); imgs.current = []; };
   }, []);
 
   const draw = useCallback((fi: number) => {
     const ca = c.current, im = imgs.current[fi];
     if (!ca || !im || !im.complete || !im.naturalWidth) return;
-    const ctx = ca.getContext("2d", { willReadFrequently: true });
+    const ctx = ca.getContext("2d");
     if (!ctx) return;
     const w = window.innerWidth, h = window.innerHeight;
-    ca.width = w; ca.height = h; ca.style.width = w + "px"; ca.style.height = h + "px";
-    const s = Math.max(w / im.naturalWidth, h / im.naturalHeight);
-    ctx.clearRect(0, 0, w, h);
-    ctx.drawImage(im, (w - im.naturalWidth * s) / 2, h - im.naturalHeight * s, im.naturalWidth * s, im.naturalHeight * s);
+    if (size.current.w !== w || size.current.h !== h) {
+      ca.width = w; ca.height = h;
+      ca.style.width = w + "px"; ca.style.height = h + "px";
+      size.current = { w, h };
+    }
+    ctx.drawImage(im, 0, 0, w, h);
   }, []);
 
   useEffect(() => {
-    if (!ok) return;
+    if (!showFirst) return;
     let cl: (() => void) | undefined, rt: any;
     const at = () => {
       const l = (window as any).__lenis;
       if (!l) { rt = setTimeout(at, 0); return; }
+      // Draw first frame to get initial canvas size
+      draw(0);
+      let pending = false;
       const os = () => {
-        const scrolled = window.scrollY;
-        const p = Math.min(1, scrolled / window.innerHeight);
-        const fi = Math.min(FRAMES - 1, Math.floor(p * FRAMES));
-        if (fi !== cur.current) { cur.current = fi; draw(fi); }
-        onProg(p);
+        if (pending) return;
+        pending = true;
+        requestAnimationFrame(() => {
+          pending = false;
+          const scrolled = window.scrollY;
+          const p = Math.min(1, scrolled / window.innerHeight);
+          const fi = Math.min(FRAMES - 1, Math.floor(p * FRAMES));
+          if (fi !== cur.current) { cur.current = fi; draw(fi); }
+          onProg(p);
+        });
       };
-      l.on("scroll", os); os();
+      l.on("scroll", os);
       cl = () => l.off("scroll", os);
     };
     at();
     return () => { clearTimeout(rt); if (cl) cl(); };
-  }, [ok, draw, onProg]);
+  }, [showFirst, draw, onProg]);
 
   return (
     <div className="fixed inset-0 bg-black -z-10">
       <canvas ref={c} className="w-full h-full block" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60 pointer-events-none" />
-      {!ok && <div className="absolute inset-0 flex items-center justify-center bg-black"><div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" /></div>}
+      {!showFirst && <div className="absolute inset-0 flex items-center justify-center bg-black"><div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" /></div>}
     </div>
   );
 }

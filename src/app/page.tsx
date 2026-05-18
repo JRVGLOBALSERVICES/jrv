@@ -1,11 +1,13 @@
 "use client";
 
 import { useRef, useState, useCallback, useEffect } from "react";
+import { useLang } from "@/i18n/provider";
 import { motion, useInView } from "framer-motion";
 import dynamic from "next/dynamic";
 import BookingModal from "@/components/booking/BookingModal";
 import PricingCalculator from "@/components/PricingCalculator";
 import Globe from "@/components/Globe";
+import LangSwitch from "@/components/LangSwitch";
 
 const Car3D = dynamic(() => import("@/components/3d/Car3D"), { ssr: false });
 const FleetShowroom = dynamic(() => import("@/components/fleet/FleetShowroom"), { ssr: false });
@@ -140,6 +142,7 @@ function Showcase3D({ scene }: { scene?: any }) {
 
 // ─── PAGE ─────────────────────────────────────────────
 export default function Home() {
+  const { t } = useLang();
   const [sy, setSy] = useState(0);
   const [vp, setVp] = useState(0);
   const [carScene, setCarScene] = useState<any>(null);
@@ -189,12 +192,13 @@ export default function Home() {
             <div className="w-8 h-8 bg-[#FF4500] rounded-lg flex items-center justify-center">
               <span className="text-white font-black text-xs">JRV</span>
             </div>
-            <span className="text-white/50 text-xs font-semibold tracking-wider uppercase hidden sm:block">Car Rental</span>
+            <span className="text-white/50 text-xs font-semibold tracking-wider uppercase hidden sm:block">{t('nav.brand')}</span>
           </a>
-          <div className="flex items-center gap-4">
-            <a href="#fleet" className="text-white/60 hover:text-white text-[10px] font-semibold uppercase tracking-wider transition-colors">Fleet</a>
+          <div className="flex items-center gap-3">
+            <LangSwitch />
+            <a href="#fleet" className="text-white/60 hover:text-white text-[10px] font-semibold uppercase tracking-wider transition-colors">{t('nav.fleet')}</a>
             <button onClick={() => setBooking({ open: true })}
-              className="bg-[#FF4500] text-white text-xs font-bold px-4 py-2 rounded-lg hover:brightness-110 active:scale-[0.97] transition-all cursor-pointer">Book Now</button>
+              className="bg-[#FF4500] text-white text-xs font-bold px-4 py-2 rounded-lg hover:brightness-110 active:scale-[0.97] transition-all cursor-pointer">{t('nav.book')}</button>
           </div>
         </div>
       </motion.nav>
@@ -208,17 +212,17 @@ export default function Home() {
         <div className="text-center px-5 max-w-3xl mx-auto">
           <p className="text-[#FF4500] text-xs font-bold tracking-[0.25em] uppercase mb-4" style={f(0.05)}>Sewa Lama Lagi Murah</p>
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white leading-[0.88] mb-4" style={f(0.12)}>
-            Rent The<br /><span className="text-[#FF4500]">Ride.</span><br />Own The<br /><span className="text-[#FF4500]">Road.</span>
+            {t('hero.title_1')}<br /><span className="text-[#FF4500]">{t('hero.title_2')}</span><br />{t('hero.title_3')}<br /><span className="text-[#FF4500]">{t('hero.title_4')}</span>
           </h1>
-          <p className="text-white/50 text-sm md:text-base max-w-md mx-auto mb-8" style={f(0.22)}>Premium cars · Honest prices · Free delivery Seremban</p>
+          <p className="text-white/50 text-sm md:text-base max-w-md mx-auto mb-8" style={f(0.22)}>{t('hero.subtitle')}</p>
           <div className="flex flex-col sm:flex-row justify-center gap-3" style={f(0.32)}>
             <button onClick={() => setBooking({ open: true })}
-              className="bg-[#FF4500] text-white font-bold px-8 py-3.5 rounded-xl text-sm hover:brightness-110 active:scale-[0.97] transition-all cursor-pointer">Book on WhatsApp</button>
+              className="bg-[#FF4500] text-white font-bold px-8 py-3.5 rounded-xl text-sm hover:brightness-110 active:scale-[0.97] transition-all cursor-pointer">{t('hero.book')}</button>
             <a href="tel:+60126565477"
-              className="border border-white/20 text-white font-semibold px-8 py-3.5 rounded-xl text-sm hover:bg-white/5 active:scale-[0.97] transition-all">Call +60 12-656 5477</a>
+              className="border border-white/20 text-white font-semibold px-8 py-3.5 rounded-xl text-sm hover:bg-white/5 active:scale-[0.97] transition-all">{t('hero.call')}</a>
           </div>
           <div className="flex gap-8 justify-center mt-8" style={f(0.42)}>
-            {[{ v: "50+", l: "Cars" }, { v: "1K+", l: "Clients" }, { v: "4.9★", l: "Rating" }].map((x) => (
+            {[{ v: "50+", l: t('hero.cars') }, { v: "1K+", l: t('hero.clients') }, { v: "4.9★", l: t('hero.rating') }].map((x) => (
               <div key={x.l} className="text-center">
                 <p className="text-2xl font-black text-white">{x.v}</p>
                 <p className="text-[9px] text-white/40 font-semibold uppercase tracking-wider mt-0.5">{x.l}</p>

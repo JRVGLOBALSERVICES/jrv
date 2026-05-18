@@ -222,7 +222,7 @@ export default function Home() {
         </div>
       </motion.nav>
       <div style={{ height: 56 }} />
-      <div style={{ height: "calc(100vh - 56px)" }} />
+      <div style={{ height: "calc(70vh - 56px)" }} />
 
       <Scrubber onProg={hp} />
 

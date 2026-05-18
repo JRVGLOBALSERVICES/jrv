@@ -364,7 +364,7 @@ export default function Home() {
             {['q1','q2','q3','q4'].map((k, i) => (
               <details key={i} className="group border border-white/10 rounded-xl overflow-hidden bg-white/5 backdrop-blur-sm">
                 <summary className="px-5 py-3.5 cursor-pointer text-white font-semibold text-sm flex items-center justify-between list-none hover:bg-white/5 transition-colors">
-                  <span>{f.q}</span>
+                  <span>{t('faq.' + k)}</span>
                   <span className="text-[#FF4500] group-open:rotate-180 transition-transform text-xs shrink-0">▾</span>
                 </summary>
                 <div className="px-5 pb-3.5 text-white/50 text-xs leading-relaxed border-t border-white/5 pt-2.5">{t('faq.' + k.replace('q', 'a'))}</div>
